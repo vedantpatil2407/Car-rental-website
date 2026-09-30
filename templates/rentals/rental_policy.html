@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Vehicle Care & Damage Policy — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 48px 0 64px;">
+  <div class="container" style="max-width: 860px;">
+    <div style="margin-bottom: 28px;">
+      <div style="display: inline-block; background-color: rgba(0, 210, 255, 0.12); color: var(--color-primary); font-size: 0.8rem; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-sm); margin-bottom: 10px; border: 1px solid rgba(0, 210, 255, 0.3);">
+        OFFICIAL RENTAL POLICY &bull; VERSION 1.0
+      </div>
+      <h1 style="font-size: 2.1rem; margin-bottom: 10px;">Vehicle Care & Damage Responsibility Policy</h1>
+      <p style="color: var(--color-text-secondary); font-size: 1rem;">
+        Essential terms governing vehicle custody, pre-rental inspections, incident reporting, and damage settlement for {{ BUSINESS_NAME }}.
+      </p>
+    </div>
+
+    <!-- Main Policy Card -->
+    <div class="card card-elevated" style="padding: 32px; border: 1px solid rgba(0, 210, 255, 0.25); line-height: 1.7; color: var(--color-text-secondary); margin-bottom: 28px;">
+      <h3 style="color: var(--color-text-primary); font-size: 1.3rem; margin-bottom: 16px;">1. Care & Custody of Vehicle</h3>
+      <p style="margin-bottom: 16px;">
+        The renter is responsible for taking reasonable care of the vehicle throughout the rental period. The renter must operate the vehicle in compliance with traffic regulations and road safety standards.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); font-size: 1.3rem; margin-top: 24px; margin-bottom: 16px;">2. Return Condition & Damage Responsibility</h3>
+      <p style="margin-bottom: 16px;">
+        The vehicle must be returned in the agreed condition. Any new damage, accident-related damage or loss caused during the rental period may result in charges to the renter according to the agreed rental terms and applicable law.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); font-size: 1.3rem; margin-top: 24px; margin-bottom: 16px;">3. Pre-Rental Condition Inspection</h3>
+      <p style="margin-bottom: 16px;">
+        Any existing damage, scratches, or cosmetic marks should be identified, verified, and documented between the owner and the renter before or at the time of vehicle pickup.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); font-size: 1.3rem; margin-top: 24px; margin-bottom: 16px;">4. Incident & Breakdown Reporting</h3>
+      <p style="margin-bottom: 16px;">
+        The renter must inform <strong>{{ BUSINESS_NAME }}</strong> immediately if an accident, damage, breakdown or other incident occurs during the rental period to facilitate proper documentation and assistance.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); font-size: 1.3rem; margin-top: 24px; margin-bottom: 16px;">5. Post-Rental Assessment & Settlement</h3>
+      <p style="margin-bottom: 16px;">
+        New damage discovered after the rental may be assessed by the owner. The renter is responsible for costs that are properly attributable to damage caused during their rental, subject to applicable law and the agreed rental terms.
+      </p>
+
+      <div style="background-color: var(--color-bg); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-top: 24px;">
+        <p style="font-size: 0.875rem; color: var(--color-text-muted); margin: 0;">
+          <strong>Auditable Policy Acceptance:</strong> Explicit acceptance of this policy is recorded server-side with a timestamp and exact text snapshot at the time of submitting every booking request.
+        </p>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="{% url 'cars_list' %}" class="btn btn-primary btn-lg">Browse Fleet & Request a Car &rarr;</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

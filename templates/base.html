@@ -1,0 +1,220 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ BUSINESS_NAME }} — Self-Drive Car Rental{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Premium & reliable self-drive car rentals with Keys to your freedom. Simple booking requests, transparent terms, and direct local owner support.{% endblock %}">
+  
+  <!-- Favicon / Theme -->
+  <meta name="theme-color" content="#090D16">
+  
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Site Header / Navbar -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <!-- Brand Logo -->
+      <a href="{% url 'home' %}" class="brand-logo" title="{{ BUSINESS_NAME }}">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+            <circle cx="7" cy="17" r="2"></circle>
+            <path d="M9 17h6"></path>
+            <circle cx="17" cy="17" r="2"></circle>
+          </svg>
+        </div>
+        <span>{{ BUSINESS_NAME }}</span>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <ul class="nav-links">
+        <li><a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a></li>
+        <li><a href="{% url 'cars_list' %}" class="nav-link {% if '/cars' in request.path %}active{% endif %}">Our Fleet</a></li>
+        <li><a href="{% url 'rental_policy' %}" class="nav-link {% if '/rental-policy' in request.path %}active{% endif %}">Rental Policy</a></li>
+        <li><a href="{% url 'about' %}" class="nav-link {% if '/about' in request.path %}active{% endif %}">About</a></li>
+        <li><a href="{% url 'contact' %}" class="nav-link {% if '/contact' in request.path %}active{% endif %}">Contact</a></li>
+      </ul>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <!-- Direct WhatsApp Owner CTA -->
+        <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}?text=Hi%20{{ BUSINESS_NAME }}%2C%20I%20have%20an%20inquiry%20regarding%20car%20rental" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm" title="Chat on WhatsApp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.895-.447-1.611-.664-2.64-2.316-2.721-2.424-.08-.108-.654-.87-.654-1.656 0-.786.413-1.172.56-1.332.146-.16.32-.2.427-.2.106 0 .213.002.307.006.098.005.23-.037.36.276.133.32.453 1.107.494 1.188.04.08.067.174.013.281-.053.107-.08.174-.16.267-.08.093-.17.207-.243.277-.08.08-.163.167-.07.327.094.16.417.688.895 1.114.614.548 1.133.718 1.293.799.16.08.254.067.347-.04.094-.107.4-.467.507-.627.107-.16.214-.134.36-.08.147.054.934.441 1.094.521.16.08.267.12.307.187.04.067.04.387-.104.792z"/>
+          </svg>
+          <span>WhatsApp</span>
+        </a>
+
+        <!-- Call Owner -->
+        <a href="tel:{{ BUSINESS_PHONE }}" class="btn btn-secondary btn-sm" title="Call Owner">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+        </a>
+
+        <!-- Mobile Drawer Toggle -->
+        <button id="mobileToggle" class="mobile-toggle" aria-label="Toggle Navigation Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div id="mobileDrawer" class="mobile-drawer">
+      <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+      <a href="{% url 'cars_list' %}" class="nav-link {% if '/cars' in request.path %}active{% endif %}">Our Fleet</a>
+      <a href="{% url 'rental_policy' %}" class="nav-link {% if '/rental-policy' in request.path %}active{% endif %}">Rental Policy & Vehicle Care</a>
+      <a href="{% url 'rental_rules' %}" class="nav-link {% if '/rental-rules' in request.path %}active{% endif %}">Rental Rules</a>
+      <a href="{% url 'about' %}" class="nav-link {% if '/about' in request.path %}active{% endif %}">About Us</a>
+      <a href="{% url 'contact' %}" class="nav-link {% if '/contact' in request.path %}active{% endif %}">Contact & Pickup Locations</a>
+      <a href="{% url 'admin_shell_preview' %}" class="nav-link" style="color: var(--color-warning);">Owner Admin Portal</a>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  {% if messages %}
+    <div class="container" style="margin-top: 16px;">
+      {% for message in messages %}
+        <div class="notice-banner {% if message.tags == 'error' %}notice-danger{% elif message.tags == 'success' %}notice-success{% else %}notice-warning{% endif %}">
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content Block -->
+  <main id="mainContent" style="flex: 1;">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- Business Column -->
+        <div class="footer-col">
+          <div class="brand-logo" style="margin-bottom: 14px;">
+            <div class="logo-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+                <circle cx="7" cy="17" r="2"></circle>
+                <path d="M9 17h6"></path>
+                <circle cx="17" cy="17" r="2"></circle>
+              </svg>
+            </div>
+            <span>{{ BUSINESS_NAME }}</span>
+          </div>
+          <p style="color: var(--color-text-secondary); font-size: 0.875rem; line-height: 1.6; margin-bottom: 18px;">
+            Quality self-drive car rentals with direct owner verification, transparent rental terms, and dedicated WhatsApp support.
+          </p>
+          <div class="flex gap-2">
+            <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm">WhatsApp Owner</a>
+            <a href="tel:{{ BUSINESS_PHONE }}" class="btn btn-secondary btn-sm">Call Now</a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'cars_list' %}">Browse Cars</a></li>
+            <li><a href="{% url 'about' %}">About Our Fleet</a></li>
+            <li><a href="{% url 'contact' %}">Pickup Points</a></li>
+          </ul>
+        </div>
+
+        <!-- Rental Policies -->
+        <div class="footer-col">
+          <h4>Policies & Rules</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'rental_policy' %}">Vehicle Care & Damage Policy</a></li>
+            <li><a href="{% url 'rental_rules' %}">Rental Guidelines</a></li>
+            <li><a href="{% url 'privacy' %}">Privacy & Data Security</a></li>
+            <li><a href="{% url 'admin_shell_preview' %}">Owner Portal</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="footer-col">
+          <h4>Direct Support</h4>
+          <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 8px;">
+            <strong style="color: var(--color-text-primary);">Phone:</strong> {{ BUSINESS_PHONE }}
+          </p>
+          <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 8px;">
+            <strong style="color: var(--color-text-primary);">WhatsApp:</strong> {{ BUSINESS_WHATSAPP }}
+          </p>
+          <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-bottom: 8px;">
+            <strong style="color: var(--color-text-primary);">Email:</strong> {{ BUSINESS_EMAIL }}
+          </p>
+          <p style="color: var(--color-text-secondary); font-size: 0.85rem;">
+            <strong style="color: var(--color-text-primary);">Hours:</strong> {{ BUSINESS_HOURS }}
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 <strong>{{ BUSINESS_NAME }}</strong>. All rights reserved.
+        </div>
+        <div>
+          Owner-Controlled Rental Management System &bull; Offline Settlement
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Bottom Navigation Bar (Screenshot Style) -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="{% url 'home' %}" class="bottom-nav-item {% if request.path == '/' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      <span>Home</span>
+    </a>
+
+    <a href="{% url 'cars_list' %}" class="bottom-nav-item {% if '/cars' in request.path %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+        <circle cx="7" cy="17" r="2"></circle>
+        <path d="M9 17h6"></path>
+        <circle cx="17" cy="17" r="2"></circle>
+      </svg>
+      <span>Cars</span>
+    </a>
+
+    <a href="{% url 'rental_policy' %}" class="bottom-nav-item {% if '/rental-policy' in request.path %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <span>Policy</span>
+    </a>
+
+    <a href="{% url 'contact' %}" class="bottom-nav-item {% if '/contact' in request.path %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span>Support</span>
+    </a>
+  </nav>
+
+  <!-- Core JavaScript -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

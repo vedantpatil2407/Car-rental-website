@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy & Data Security — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 48px 0 64px;">
+  <div class="container" style="max-width: 860px;">
+    <div style="margin-bottom: 28px;">
+      <h1 style="font-size: 2.1rem; margin-bottom: 10px;">Privacy Policy & Communication Security</h1>
+      <p style="color: var(--color-text-secondary); font-size: 1rem;">
+        How customer information and WhatsApp numbers are collected, stored, and protected by {{ BUSINESS_NAME }}.
+      </p>
+    </div>
+
+    <div class="card card-elevated" style="padding: 32px; line-height: 1.7; color: var(--color-text-secondary);">
+      <h3 style="color: var(--color-text-primary); margin-bottom: 12px;">Customer Contact Information</h3>
+      <p style="margin-bottom: 16px;">
+        We collect customer name, mobile phone number, WhatsApp number, and optional email address strictly for rental request processing, live availability verification, and booking confirmation communication.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); margin-top: 24px; margin-bottom: 12px;">WhatsApp Communication</h3>
+      <p style="margin-bottom: 16px;">
+        The WhatsApp number provided during booking request submission is used exclusively for booking summary delivery, confirmation notifications, and owner coordination upon owner confirmation. We do not sell or publicly disclose phone numbers.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); margin-top: 24px; margin-bottom: 12px;">Document & Audit Safety</h3>
+      <p style="margin-bottom: 16px;">
+        Accepted rental policies and booking confirmations are maintained securely in accordance with standard business audit practices.
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

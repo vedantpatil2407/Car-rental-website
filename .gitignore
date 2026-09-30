@@ -1,0 +1,29 @@
+# Environments & Secret files
+.env
+.env.local
+*.env
+db.sqlite3
+test_*.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Django static & media
+staticfiles/
+media/
+media_root/
+
+# Logs and IDE
+*.log
+.vscode/
+.idea/
+*.swp

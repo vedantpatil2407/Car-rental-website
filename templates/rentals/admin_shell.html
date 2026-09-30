@@ -1,0 +1,116 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block page_title %}Owner Operations Control Dashboard{% endblock %}
+
+{% block admin_content %}
+<!-- Dashboard Stats Grid -->
+<div class="grid grid-4" style="gap: 16px; margin-bottom: 28px;">
+  <div class="admin-stat-card" style="border: 1px solid rgba(245, 158, 11, 0.4);">
+    <div class="admin-stat-label" style="color: #FBBF24;">Pending Requests</div>
+    <div class="admin-stat-value" style="color: #FBBF24;">3</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Requires owner availability review</div>
+  </div>
+
+  <div class="admin-stat-card" style="border: 1px solid rgba(16, 185, 129, 0.35);">
+    <div class="admin-stat-label" style="color: #34D399;">Confirmed Bookings</div>
+    <div class="admin-stat-value" style="color: #34D399;">8</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Inventory blocked</div>
+  </div>
+
+  <div class="admin-stat-card" style="border: 1px solid rgba(0, 210, 255, 0.35);">
+    <div class="admin-stat-label" style="color: var(--color-primary);">Available Fleet</div>
+    <div class="admin-stat-value" style="color: var(--color-primary);">12 / 15</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Active vehicles</div>
+  </div>
+
+  <div class="admin-stat-card" style="border: 1px solid rgba(234, 88, 12, 0.35);">
+    <div class="admin-stat-label" style="color: #FB923C;">WhatsApp Confirmations</div>
+    <div class="admin-stat-value" style="color: #FB923C;">2 Pending</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Manual WhatsApp send queue</div>
+  </div>
+</div>
+
+<!-- Recent Booking Requests Table -->
+<div class="card" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
+  <div style="padding: 16px 20px; background-color: var(--color-surface-elevated); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h3 style="font-size: 1.15rem; color: var(--color-text-primary);">Recent Booking Requests & Verification Queue</h3>
+      <p style="font-size: 0.8rem; color: var(--color-text-muted);">Review live availability and manually confirm or send customer WhatsApp confirmation</p>
+    </div>
+    <div class="flex gap-2">
+      <span class="badge badge-cyan">Owner Control</span>
+    </div>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Customer</th>
+          <th>Customer WhatsApp</th>
+          <th>Vehicle</th>
+          <th>Dates</th>
+          <th>Policy Status</th>
+          <th>Status</th>
+          <th>WhatsApp Delivery</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--color-primary);">KTF-2026-0001</strong></td>
+          <td>Rahul Sharma</td>
+          <td><span style="color: var(--color-whatsapp);">+91 9876543210</span></td>
+          <td>Hyundai Creta</td>
+          <td>Oct 05 - Oct 08</td>
+          <td><span class="badge badge-confirmed">v1.0 Accepted</span></td>
+          <td><span class="badge badge-pending">PENDING</span></td>
+          <td><span class="badge badge-delivery-ready">Ready to Send</span></td>
+          <td>
+            <div class="flex gap-1">
+              <button class="btn btn-primary btn-sm" title="Confirm Booking">Confirm</button>
+              <button class="btn btn-whatsapp btn-sm" title="Confirm & Send WhatsApp">Confirm & WA</button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong style="color: var(--color-primary);">KTF-2026-0002</strong></td>
+          <td>Pooja Patel</td>
+          <td><span style="color: var(--color-whatsapp);">+91 9811223344</span></td>
+          <td>Maruti Swift</td>
+          <td>Oct 06 - Oct 07</td>
+          <td><span class="badge badge-confirmed">v1.0 Accepted</span></td>
+          <td><span class="badge badge-pending">PENDING</span></td>
+          <td><span class="badge badge-delivery-manual">Manual Send Req</span></td>
+          <td>
+            <div class="flex gap-1">
+              <button class="btn btn-primary btn-sm">Confirm</button>
+              <button class="btn btn-danger btn-sm">Reject</button>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td><strong style="color: var(--color-primary);">KTF-2026-0003</strong></td>
+          <td>Amit Verma</td>
+          <td><span style="color: var(--color-whatsapp);">+91 9765432109</span></td>
+          <td>Mahindra Thar</td>
+          <td>Oct 02 - Oct 04</td>
+          <td><span class="badge badge-confirmed">v1.0 Accepted</span></td>
+          <td><span class="badge badge-confirmed">CONFIRMED</span></td>
+          <td><span class="badge badge-completed">PDF Generated</span></td>
+          <td>
+            <div class="flex gap-1">
+              <button class="btn btn-secondary btn-sm">Download PDF</button>
+              <button class="btn btn-whatsapp btn-sm">Open WhatsApp</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

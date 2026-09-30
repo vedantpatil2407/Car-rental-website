@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ car.brand }} {{ car.model }} — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 40px 0 60px;">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--color-text-muted);">
+      <a href="{% url 'home' %}" style="color: var(--color-text-secondary);">Home</a> &bull;
+      <a href="{% url 'cars_list' %}" style="color: var(--color-text-secondary);">Fleet</a> &bull;
+      <span style="color: var(--color-primary);">{{ car.brand }} {{ car.model }}</span>
+    </div>
+
+    <div class="grid grid-2" style="gap: 32px; align-items: flex-start;">
+      <!-- Left Column: Vehicle Media & Specs -->
+      <div>
+        <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 24px; border: 1px solid rgba(0, 210, 255, 0.25);">
+          <div style="position: relative; width: 100%; height: 320px; background-color: var(--color-bg-alt);">
+            <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.model }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% if car.badge %}
+              <span class="badge badge-cyan" style="position: absolute; top: 16px; left: 16px;">{{ car.badge }}</span>
+            {% endif %}
+            <span class="car-class-badge" style="position: absolute; top: 16px; right: 16px;">{{ car.vehicle_class }}</span>
+          </div>
+        </div>
+
+        <!-- Specifications Breakdown -->
+        <div class="card" style="margin-bottom: 24px;">
+          <h3 style="margin-bottom: 16px; font-size: 1.15rem;">Key Specifications</h3>
+          <div class="grid grid-2" style="gap: 14px;">
+            <div style="background-color: var(--color-bg-alt); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+              <div style="font-size: 0.75rem; color: var(--color-text-muted);">Seating Capacity</div>
+              <div style="font-weight: 700; color: var(--color-text-primary);">{{ car.seats }} Passengers</div>
+            </div>
+            <div style="background-color: var(--color-bg-alt); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+              <div style="font-size: 0.75rem; color: var(--color-text-muted);">Transmission</div>
+              <div style="font-weight: 700; color: var(--color-text-primary);">{{ car.transmission }}</div>
+            </div>
+            <div style="background-color: var(--color-bg-alt); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+              <div style="font-size: 0.75rem; color: var(--color-text-muted);">Fuel Type</div>
+              <div style="font-weight: 700; color: var(--color-text-primary);">{{ car.fuel_type }}</div>
+            </div>
+            <div style="background-color: var(--color-bg-alt); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
+              <div style="font-size: 0.75rem; color: var(--color-text-muted);">Air Conditioning</div>
+              <div style="font-weight: 700; color: var(--color-text-primary);">{{ car.ac_status }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Description & Rental Guidelines -->
+        <div class="card">
+          <h3 style="margin-bottom: 12px; font-size: 1.15rem;">Vehicle Overview & Included Mileage</h3>
+          <p style="color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            {{ car.description|default:"Clean, regularly maintained self-drive car with standard safety features, smooth engine performance, and cold air conditioning." }}
+          </p>
+
+          <div style="background-color: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.2); padding: 14px; border-radius: var(--radius-md);">
+            <div style="font-weight: 700; color: var(--color-primary); font-size: 0.9rem; margin-bottom: 4px;">Included Mileage: {{ car.included_km }} km / day</div>
+            <div style="font-size: 0.8rem; color: var(--color-text-secondary);">Extra distance is charged at ₹10 per additional kilometer. Fuel is customer's responsibility (same-to-same policy).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Booking Request Panel -->
+      <div>
+        <div class="card card-elevated" style="padding: 28px; border: 1px solid rgba(0, 210, 255, 0.3); position: sticky; top: 88px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px;">
+            <div>
+              <div class="car-brand">{{ car.brand }}</div>
+              <h2 style="font-size: 1.6rem;">{{ car.model }}</h2>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--color-primary);">₹{{ car.price_per_day }}</span>
+              <span style="font-size: 0.85rem; color: var(--color-text-secondary);">/ day</span>
+            </div>
+          </div>
+
+          <!-- Notice: Owner Confirmation Request Workflow -->
+          <div class="notice-banner notice-info" style="margin-bottom: 20px;">
+            <div style="font-size: 0.825rem; line-height: 1.5;">
+              <strong>Booking Request System:</strong> Submitting a request creates a <strong>PENDING</strong> booking. The owner confirms live schedule & vehicle availability before confirmation.
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+            <a href="{% url 'booking_form' car.id %}" class="btn btn-primary btn-lg btn-block">
+              <span>Proceed to Booking Request &rarr;</span>
+            </a>
+
+            <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}?text=Hi%20{{ BUSINESS_NAME }}%2C%20I%20am%20interested%20in%20booking%20the%20{{ car.brand }}%20{{ car.model }}%20(₹{{ car.price_per_day }}/day).%20Is%20it%20available%3F" target="_blank" rel="noopener" class="btn btn-whatsapp btn-block">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.895-.447-1.611-.664-2.64-2.316-2.721-2.424-.08-.108-.654-.87-.654-1.656 0-.786.413-1.172.56-1.332.146-.16.32-.2.427-.2.106 0 .213.002.307.006.098.005.23-.037.36.276.133.32.453 1.107.494 1.188.04.08.067.174.013.281-.053.107-.08.174-.16.267-.08.093-.17.207-.243.277-.08.08-.163.167-.07.327.094.16.417.688.895 1.114.614.548 1.133.718 1.293.799.16.08.254.067.347-.04.094-.107.4-.467.507-.627.107-.16.214-.134.36-.08.147.054.934.441 1.094.521.16.08.267.12.307.187.04.067.04.387-.104.792z"/></svg>
+              <span>Ask Owner on WhatsApp</span>
+            </a>
+          </div>
+
+          <!-- Quick Rental Summary Features -->
+          <div style="border-top: 1px solid var(--color-border); padding-top: 20px;">
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.85rem; color: var(--color-text-secondary);">
+              <li class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Refundable security deposit handled offline</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Pre-rental vehicle condition inspection included</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Clear Vehicle Care & Damage Policy</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

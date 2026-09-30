@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Request Received &bull; {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 48px 0 64px;">
+  <div class="container" style="max-width: 760px;">
+    <!-- Status Card -->
+    <div class="card card-elevated" style="text-align: center; padding: 36px 28px; border: 1px solid rgba(0, 210, 255, 0.35); margin-bottom: 24px;">
+      <!-- Header Icon & Title -->
+      <div style="width: 64px; height: 64px; border-radius: 50%; background-color: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      </div>
+
+      <span class="badge badge-pending" style="font-size: 0.85rem; padding: 6px 14px; margin-bottom: 12px;">Request Status: PENDING</span>
+      <h1 style="font-size: 2.1rem; margin-bottom: 8px;">BOOKING REQUEST RECEIVED</h1>
+
+      <!-- Prominent Warning Banner -->
+      <div class="notice-banner notice-warning" style="text-align: left; margin: 20px 0 28px;">
+        <svg class="notice-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <div>
+          <div style="font-weight: 800; font-size: 1.05rem; color: #FBBF24; text-transform: uppercase; letter-spacing: 0.02em;">
+            YOUR BOOKING IS NOT CONFIRMED YET.
+          </div>
+          <div style="font-size: 0.875rem; color: #FEF3C7; margin-top: 4px; line-height: 1.5;">
+            Your request has been placed on hold. The owner will verify vehicle schedule and confirm your booking. Please connect with the owner below.
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Summary Details Card -->
+      <div style="background-color: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 20px; text-align: left; margin-bottom: 28px;">
+        <div class="flex justify-between items-center" style="border-bottom: 1px solid var(--color-border); padding-bottom: 12px; margin-bottom: 14px;">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Booking Reference</div>
+            <div style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 800; color: var(--color-primary);">
+              {{ booking_ref|default:"KTF-2026-0001" }}
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.75rem; color: var(--color-text-muted);">Customer</div>
+            <div style="font-weight: 700; color: var(--color-text-primary);">{{ customer_name|default:"Valued Customer" }}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: 12px; font-size: 0.875rem;">
+          <div>
+            <span style="color: var(--color-text-muted);">Vehicle:</span>
+            <strong style="color: var(--color-text-primary); display: block;">{{ car.brand }} {{ car.model }}</strong>
+          </div>
+          <div>
+            <span style="color: var(--color-text-muted);">Pickup Location:</span>
+            <strong style="color: var(--color-text-primary); display: block;">{{ pickup_location|default:"Main Terminal" }}</strong>
+          </div>
+          <div>
+            <span style="color: var(--color-text-muted);">Pickup Schedule:</span>
+            <strong style="color: var(--color-text-primary); display: block;">{{ pickup_date|default:"Upcoming" }} at {{ pickup_time|default:"10:00 AM" }}</strong>
+          </div>
+          <div>
+            <span style="color: var(--color-text-muted);">Return Schedule:</span>
+            <strong style="color: var(--color-text-primary); display: block;">{{ return_date|default:"Upcoming" }} at {{ return_time|default:"10:00 AM" }}</strong>
+          </div>
+          {% if customer_whatsapp %}
+          <div style="grid-column: 1 / -1; border-top: 1px dashed var(--color-border); padding-top: 10px; margin-top: 4px;">
+            <span style="color: var(--color-text-muted);">Customer WhatsApp for Confirmation:</span>
+            <strong style="color: var(--color-whatsapp); display: inline-block; margin-left: 6px;">{{ customer_whatsapp }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Contact Owner Actions -->
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 1.15rem; margin-bottom: 14px;">Contact Owner to Confirm Availability</h3>
+        <div class="grid grid-2" style="gap: 12px;">
+          <!-- Prefilled WhatsApp Owner Link -->
+          <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}?text=Hi%2C%20I%20submitted%20a%20booking%20request%20with%20{{ BUSINESS_NAME }}.%0ABooking%20Reference%3A%20{{ booking_ref|default:'KTF-2026-0001' }}%0ACar%3A%20{{ car.brand }}%20{{ car.model }}%0APickup%3A%20{{ pickup_date }}%20at%20{{ pickup_time }}%0AReturn%3A%20{{ return_date }}%20at%20{{ return_time }}%0ALocation%3A%20{{ pickup_location }}%0APlease%20help%20me%20confirm%20availability." target="_blank" rel="noopener" class="btn btn-whatsapp btn-lg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.895-.447-1.611-.664-2.64-2.316-2.721-2.424-.08-.108-.654-.87-.654-1.656 0-.786.413-1.172.56-1.332.146-.16.32-.2.427-.2.106 0 .213.002.307.006.098.005.23-.037.36.276.133.32.453 1.107.494 1.188.04.08.067.174.013.281-.053.107-.08.174-.16.267-.08.093-.17.207-.243.277-.08.08-.163.167-.07.327.094.16.417.688.895 1.114.614.548 1.133.718 1.293.799.16.08.254.067.347-.04.094-.107.4-.467.507-.627.107-.16.214-.134.36-.08.147.054.934.441 1.094.521.16.08.267.12.307.187.04.067.04.387-.104.792z"/></svg>
+            <span>WhatsApp Owner</span>
+          </a>
+
+          <!-- Call Owner -->
+          <a href="tel:{{ BUSINESS_PHONE }}" class="btn btn-secondary btn-lg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <span>Call Owner</span>
+          </a>
+        </div>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6;">
+        Your request has been received. Please contact the owner on WhatsApp or by phone to discuss and confirm availability.
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="{% url 'cars_list' %}" class="btn btn-outline-primary btn-sm">&larr; Return to Fleet</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

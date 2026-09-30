@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact & Pickup Points — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 48px 0 64px;">
+  <div class="container" style="max-width: 900px;">
+    <div style="margin-bottom: 32px; text-align: center;">
+      <h1 style="font-size: 2.1rem; margin-bottom: 8px;">Contact & Pickup Points</h1>
+      <p style="color: var(--color-text-secondary); font-size: 1rem;">
+        Get in touch directly with the owner for booking inquiries, custom arrangements, and airport pickups.
+      </p>
+    </div>
+
+    <div class="grid grid-2" style="gap: 28px; margin-bottom: 36px;">
+      <!-- Quick Contact Cards -->
+      <div class="card card-elevated" style="border: 1px solid rgba(37, 211, 102, 0.3);">
+        <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background-color: rgba(37, 211, 102, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--color-whatsapp)"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.895-.447-1.611-.664-2.64-2.316-2.721-2.424-.08-.108-.654-.87-.654-1.656 0-.786.413-1.172.56-1.332.146-.16.32-.2.427-.2.106 0 .213.002.307.006.098.005.23-.037.36.276.133.32.453 1.107.494 1.188.04.08.067.174.013.281-.053.107-.08.174-.16.267-.08.093-.17.207-.243.277-.08.08-.163.167-.07.327.094.16.417.688.895 1.114.614.548 1.133.718 1.293.799.16.08.254.067.347-.04.094-.107.4-.467.507-.627.107-.16.214-.134.36-.08.147.054.934.441 1.094.521.16.08.267.12.307.187.04.067.04.387-.104.792z"/></svg>
+        </div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">WhatsApp Support</h3>
+        <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 16px;">Direct chat for fleet availability, pricing, and fast response.</p>
+        <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-block">Chat on WhatsApp</a>
+      </div>
+
+      <div class="card card-elevated" style="border: 1px solid rgba(0, 210, 255, 0.3);">
+        <div style="width: 44px; height: 44px; border-radius: var(--radius-md); background-color: rgba(0, 210, 255, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        </div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Phone Call</h3>
+        <p style="color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 16px;">Call our support desk directly for immediate answers.</p>
+        <a href="tel:{{ BUSINESS_PHONE }}" class="btn btn-secondary btn-block">Call {{ BUSINESS_PHONE }}</a>
+      </div>
+    </div>
+
+    <!-- Pickup Locations List -->
+    <div class="card">
+      <h3 style="margin-bottom: 18px; font-size: 1.25rem;">Our Primary Pickup Locations</h3>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        {% for loc in locations %}
+          <div style="background-color: var(--color-bg-alt); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="font-weight: 700; color: var(--color-text-primary); font-size: 1rem;">{{ loc.name }}</div>
+              <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-top: 2px;">{{ loc.address }}</div>
+            </div>
+            <div>
+              <a href="{{ loc.maps_link }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Google Maps</span>
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

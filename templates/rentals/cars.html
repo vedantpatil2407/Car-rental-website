@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Fleet — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 40px 0 60px;">
+  <div class="container">
+    <!-- Header Title -->
+    <div style="margin-bottom: 28px;">
+      <h1 style="font-size: 2.1rem; margin-bottom: 8px;">Available Self-Drive Vehicles</h1>
+      <p style="color: var(--color-text-secondary); font-size: 0.95rem;">
+        Choose your preferred model, check specifications, and submit a booking request.
+      </p>
+    </div>
+
+    <!-- Filter / Sort Bar -->
+    <div class="card" style="margin-bottom: 32px; padding: 20px; background-color: var(--color-surface-elevated);">
+      <form method="GET" action="{% url 'cars_list' %}" class="grid grid-4" style="gap: 16px; align-items: flex-end;">
+        <div>
+          <label class="form-label">Vehicle Class</label>
+          <select name="vehicle_class" class="form-control">
+            <option value="">All Classes</option>
+            <option value="Hatchback" {% if selected_class == 'Hatchback' %}selected{% endif %}>Hatchback</option>
+            <option value="Sedan" {% if selected_class == 'Sedan' %}selected{% endif %}>Sedan</option>
+            <option value="SUV" {% if selected_class == 'SUV' %}selected{% endif %}>SUV</option>
+            <option value="MUV" {% if selected_class == 'MUV' %}selected{% endif %}>MUV / 7-Seater</option>
+            <option value="Luxury" {% if selected_class == 'Luxury' %}selected{% endif %}>Luxury</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label">Transmission</label>
+          <select name="transmission" class="form-control">
+            <option value="">All Transmissions</option>
+            <option value="Manual" {% if selected_trans == 'Manual' %}selected{% endif %}>Manual</option>
+            <option value="Automatic" {% if selected_trans == 'Automatic' %}selected{% endif %}>Automatic / AMT</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="form-label">Fuel Type</label>
+          <select name="fuel_type" class="form-control">
+            <option value="">All Fuel Types</option>
+            <option value="Petrol" {% if selected_fuel == 'Petrol' %}selected{% endif %}>Petrol</option>
+            <option value="Diesel" {% if selected_fuel == 'Diesel' %}selected{% endif %}>Diesel</option>
+            <option value="CNG" {% if selected_fuel == 'CNG' %}selected{% endif %}>CNG</option>
+            <option value="EV" {% if selected_fuel == 'EV' %}selected{% endif %}>EV / Hybrid</option>
+          </select>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Filter</button>
+          <a href="{% url 'cars_list' %}" class="btn btn-secondary">Reset</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Cars Grid -->
+    {% if cars %}
+      <div class="grid grid-3">
+        {% for car in cars %}
+          <div class="car-card">
+            <div class="car-card-media">
+              <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.model }}" class="car-card-img" loading="lazy">
+              {% if car.badge %}
+                <span class="badge badge-cyan car-badge-top">{{ car.badge }}</span>
+              {% endif %}
+              <span class="car-class-badge">{{ car.vehicle_class }}</span>
+            </div>
+
+            <div class="car-card-body">
+              <div class="car-card-header">
+                <div>
+                  <div class="car-brand">{{ car.brand }}</div>
+                  <div class="car-title">{{ car.model }}</div>
+                </div>
+                <div class="car-price-wrap">
+                  <div class="car-price">₹{{ car.price_per_day }}</div>
+                  <div class="car-price-unit">per day</div>
+                </div>
+              </div>
+
+              <!-- Specs Strip -->
+              <div class="car-specs">
+                <div class="spec-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+                  <span>{{ car.seats }} Seats</span>
+                </div>
+                <div class="spec-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                  <span>{{ car.fuel_type }}</span>
+                </div>
+                <div class="spec-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                  <span>{{ car.transmission }}</span>
+                </div>
+                <div class="spec-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9"></path><path d="M12 3v9h9"></path></svg>
+                  <span>{{ car.ac_status }}</span>
+                </div>
+              </div>
+
+              <div class="car-km-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="12 8 8 12 12 16 12 8"></polygon></svg>
+                <span>{{ car.included_km }} km / day included &bull; ₹10/km extra</span>
+              </div>
+
+              <!-- Actions -->
+              <div class="car-card-actions">
+                <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}?text=Hi%20{{ BUSINESS_NAME }}%2C%20is%20the%20{{ car.brand }}%20{{ car.model }}%20available%20for%20rental%3F" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm" title="Ask on WhatsApp">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.895-.447-1.611-.664-2.64-2.316-2.721-2.424-.08-.108-.654-.87-.654-1.656 0-.786.413-1.172.56-1.332.146-.16.32-.2.427-.2.106 0 .213.002.307.006.098.005.23-.037.36.276.133.32.453 1.107.494 1.188.04.08.067.174.013.281-.053.107-.08.174-.16.267-.08.093-.17.207-.243.277-.08.08-.163.167-.07.327.094.16.417.688.895 1.114.614.548 1.133.718 1.293.799.16.08.254.067.347-.04.094-.107.4-.467.507-.627.107-.16.214-.134.36-.08.147.054.934.441 1.094.521.16.08.267.12.307.187.04.067.04.387-.104.792z"/></svg>
+                </a>
+                <a href="{% url 'car_detail' car.id %}" class="btn btn-primary btn-sm">
+                  <span>Request Car</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="text-align: center; padding: 48px 20px;">
+        <h3>No vehicles matched your filter criteria</h3>
+        <p style="color: var(--color-text-secondary); margin: 12px 0 20px;">Try clearing some filters or contact the owner on WhatsApp directly.</p>
+        <a href="{% url 'cars_list' %}" class="btn btn-primary">View All Vehicles</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

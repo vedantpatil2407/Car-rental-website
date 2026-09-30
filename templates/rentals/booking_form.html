@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Request Booking — {{ car.brand }} {{ car.model }} &bull; {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 40px 0 60px;">
+  <div class="container" style="max-width: 860px;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--color-text-muted);">
+      <a href="{% url 'home' %}" style="color: var(--color-text-secondary);">Home</a> &bull;
+      <a href="{% url 'cars_list' %}" style="color: var(--color-text-secondary);">Fleet</a> &bull;
+      <a href="{% url 'car_detail' car.id %}" style="color: var(--color-text-secondary);">{{ car.brand }} {{ car.model }}</a> &bull;
+      <span style="color: var(--color-primary);">Booking Request</span>
+    </div>
+
+    <!-- Title & Status Advisory Banner -->
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 2rem; margin-bottom: 8px;">Booking Request Form</h1>
+      <p style="color: var(--color-text-secondary); font-size: 0.95rem;">
+        Fill out your details, review the rental policy, and submit your booking request to {{ BUSINESS_NAME }}.
+      </p>
+    </div>
+
+    <div class="notice-banner notice-warning" style="margin-bottom: 28px;">
+      <svg class="notice-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <div>
+        <strong style="color: #FBBF24;">Important Note on Booking Confirmation:</strong> Submitting this request creates a <strong>PENDING</strong> booking. Your booking is <strong>NOT confirmed yet</strong>. The owner will review live availability and vehicle schedule before manually confirming.
+      </div>
+    </div>
+
+    <!-- Booking Form -->
+    <form action="{% url 'booking_submit' %}" method="POST" id="bookingRequestForm">
+      {% csrf_token %}
+      <input type="hidden" name="car_id" value="{{ car.id }}">
+
+      <!-- Section 1: Selected Vehicle Summary -->
+      <div class="card" style="margin-bottom: 24px; background-color: var(--color-surface-elevated); border: 1px solid rgba(0, 210, 255, 0.25);">
+        <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+          <div style="width: 120px; height: 80px; border-radius: var(--radius-md); overflow: hidden; background-color: var(--color-bg-alt); flex-shrink: 0;">
+            <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.model }}" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div style="flex-grow: 1;">
+            <div class="car-brand">{{ car.brand }}</div>
+            <h3 style="font-size: 1.25rem;">{{ car.model }}</h3>
+            <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-top: 4px;">
+              {{ car.vehicle_class }} &bull; {{ car.transmission }} &bull; {{ car.fuel_type }} &bull; {{ car.seats }} Seats
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-primary);">₹{{ car.price_per_day }}</div>
+            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">per day</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Customer Details -->
+      <div class="card" style="margin-bottom: 24px;">
+        <h3 style="margin-bottom: 18px; font-size: 1.15rem; color: var(--color-primary); display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          1. Customer Details
+        </h3>
+
+        <div class="form-group">
+          <label for="customerName" class="form-label form-label-required">Full Name</label>
+          <input type="text" id="customerName" name="customer_name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label for="customerMobile" class="form-label form-label-required">Mobile Number</label>
+            <input type="tel" id="customerMobile" name="customer_mobile" class="form-control" placeholder="e.g. +91 9876543210" required>
+            <div class="form-helper">Primary phone number for voice calls.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="customerWhatsapp" class="form-label form-label-required">WhatsApp Number</label>
+            <input type="tel" id="customerWhatsapp" name="customer_whatsapp" class="form-control" placeholder="e.g. +91 9876543210" required>
+            <div class="form-helper">
+              Your booking confirmation and summary may be sent to this WhatsApp number after the owner confirms your booking.
+            </div>
+            <div style="margin-top: 6px;">
+              <label class="form-checkbox-wrap" style="font-size: 0.8rem; color: var(--color-text-secondary);">
+                <input type="checkbox" id="sameAsMobile" class="form-checkbox">
+                <span>Same as mobile number</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="customerEmail" class="form-label">Email Address (Optional)</label>
+          <input type="email" id="customerEmail" name="customer_email" class="form-control" placeholder="e.g. rahul@example.com">
+        </div>
+      </div>
+
+      <!-- Section 3: Booking & Schedule Details -->
+      <div class="card" style="margin-bottom: 24px;">
+        <h3 style="margin-bottom: 18px; font-size: 1.15rem; color: var(--color-primary); display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          2. Rental Dates & Pickup Location
+        </h3>
+
+        <div class="form-group">
+          <label for="pickupLocation" class="form-label form-label-required">Pickup Location</label>
+          <select id="pickupLocation" name="pickup_location" class="form-control" required>
+            <option value="">Select Pickup Point</option>
+            {% for loc in locations %}
+              <option value="{{ loc.id }}">{{ loc.name }} — {{ loc.address }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="grid grid-2">
+          <div>
+            <div class="form-group">
+              <label for="pickupDate" class="form-label form-label-required">Pickup Date</label>
+              <input type="date" id="pickupDate" name="pickup_date" class="form-control" data-price-per-day="{{ car.price_per_day }}" required>
+            </div>
+            <div class="form-group">
+              <label for="pickupTime" class="form-label form-label-required">Pickup Time</label>
+              <input type="time" id="pickupTime" name="pickup_time" class="form-control" value="10:00" required>
+            </div>
+          </div>
+
+          <div>
+            <div class="form-group">
+              <label for="returnDate" class="form-label form-label-required">Return Date</label>
+              <input type="date" id="returnDate" name="return_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="returnTime" class="form-label form-label-required">Return Time</label>
+              <input type="time" id="returnTime" name="return_time" class="form-control" value="10:00" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="customerMessage" class="form-label">Special Requests / Notes (Optional)</label>
+          <textarea id="customerMessage" name="customer_message" rows="3" class="form-control" placeholder="Any specific requirements or pickup questions..."></textarea>
+        </div>
+      </div>
+
+      <!-- Section 4: Mandatory Rental Responsibility Policy Card -->
+      <div class="policy-card" style="margin-bottom: 28px;">
+        <div class="policy-card-header justify-between">
+          <div class="flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <h3 style="font-size: 1.15rem; color: var(--color-text-primary);">Vehicle Care & Damage Policy</h3>
+          </div>
+          <span class="policy-badge">Mandatory Acceptance</span>
+        </div>
+
+        <div class="policy-content-box">
+          <p style="margin-bottom: 8px;">
+            The renter is responsible for taking reasonable care of the vehicle throughout the rental period.
+          </p>
+          <ul>
+            <li>The vehicle must be returned in the agreed condition. Any new damage, accident-related damage or loss caused during the rental period may result in charges to the renter according to the agreed rental terms and applicable law.</li>
+            <li>The renter must inform <strong>{{ BUSINESS_NAME }}</strong> immediately if an accident, damage, breakdown or other incident occurs.</li>
+            <li>Any existing damage should be checked and documented at pickup before commencing the rental.</li>
+          </ul>
+          <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 8px;">
+            By accepting this policy, the renter acknowledges these responsibilities. Policy acceptance does not guarantee vehicle availability until manual owner confirmation.
+          </p>
+        </div>
+
+        <label class="form-checkbox-wrap" style="background-color: var(--color-bg); padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid rgba(0, 210, 255, 0.3);">
+          <input type="checkbox" id="policyAcceptance" name="policy_accepted" class="form-checkbox" required>
+          <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-primary);">
+            I have read and agree to the Vehicle Care & Damage Policy.
+          </span>
+        </label>
+      </div>
+
+      <!-- Submit Action -->
+      <div style="text-align: center;">
+        <button type="submit" id="submitBookingBtn" class="btn btn-primary btn-lg btn-block" style="padding: 16px; font-size: 1.1rem;" disabled>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Submit Booking Request</span>
+        </button>
+        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 10px;">
+          Your request will be recorded as PENDING. Offline payment & deposit upon owner confirmation.
+        </p>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

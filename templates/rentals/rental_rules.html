@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rental Guidelines & Rules — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 48px 0 64px;">
+  <div class="container" style="max-width: 860px;">
+    <div style="margin-bottom: 28px;">
+      <h1 style="font-size: 2.1rem; margin-bottom: 10px;">Rental Rules & Practical Guidelines</h1>
+      <p style="color: var(--color-text-secondary); font-size: 1rem;">
+        Clear rules for self-drive rentals with {{ BUSINESS_NAME }}.
+      </p>
+    </div>
+
+    <div class="card card-elevated" style="padding: 32px; line-height: 1.7; color: var(--color-text-secondary);">
+      <h3 style="color: var(--color-text-primary); margin-bottom: 12px;">Driver Eligibility</h3>
+      <p style="margin-bottom: 16px;">
+        Must hold a valid, original Driving License with a minimum of 1 year of driving experience. Minimum age requirement is 21 years.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); margin-top: 24px; margin-bottom: 12px;">Fuel Policy</h3>
+      <p style="margin-bottom: 16px;">
+        <strong>Same-to-Same Fuel Level:</strong> Vehicles are delivered with a recorded fuel level and should be returned with the same level.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); margin-top: 24px; margin-bottom: 12px;">Security Deposit</h3>
+      <p style="margin-bottom: 16px;">
+        A refundable security deposit is settled offline at vehicle handover and returned after vehicle inspection at drop-off.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); margin-top: 24px; margin-bottom: 12px;">Speed Limits & Safety</h3>
+      <p style="margin-bottom: 16px;">
+        All vehicles are tracked for safety compliance. Adhere to highway and local statutory speed limits at all times.
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}

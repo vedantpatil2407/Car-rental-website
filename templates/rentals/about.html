@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section style="padding: 48px 0 64px;">
+  <div class="container" style="max-width: 840px;">
+    <div style="margin-bottom: 32px;">
+      <h1 style="font-size: 2.1rem; margin-bottom: 12px;">About {{ BUSINESS_NAME }}</h1>
+      <p style="color: var(--color-primary); font-weight: 600; font-size: 1.1rem;">
+        Your trusted local partner for transparent, reliable self-drive car rentals.
+      </p>
+    </div>
+
+    <div class="card card-elevated" style="margin-bottom: 28px; line-height: 1.7; color: var(--color-text-secondary);">
+      <h3 style="color: var(--color-text-primary); margin-bottom: 14px;">Who We Are</h3>
+      <p style="margin-bottom: 16px;">
+        <strong>{{ BUSINESS_NAME }}</strong> is a boutique, owner-operated car rental service focused on delivering well-maintained vehicles, zero hidden fees, and transparent rental agreements.
+      </p>
+      <p style="margin-bottom: 16px;">
+        Unlike impersonal aggregators, we operate on a direct owner-verification model: every booking request is reviewed against our live fleet schedule, and our customers receive direct WhatsApp communication from the business owner.
+      </p>
+
+      <h3 style="color: var(--color-text-primary); margin-top: 24px; margin-bottom: 14px;">Our Core Principles</h3>
+      <div class="grid grid-2" style="gap: 16px; margin-top: 16px;">
+        <div style="background-color: var(--color-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">1. Genuine Maintenance</div>
+          <p style="font-size: 0.85rem;">Each vehicle undergoes thorough mechanical inspection, sanitization, and tire check before handover.</p>
+        </div>
+        <div style="background-color: var(--color-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">2. Transparent Terms</div>
+          <p style="font-size: 0.85rem;">Clear damage and vehicle care policies accepted before booking submission, so there are never surprises.</p>
+        </div>
+        <div style="background-color: var(--color-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">3. Direct WhatsApp Support</div>
+          <p style="font-size: 0.85rem;">Fast communication for schedule adjustments, pickup guidance, and local assistance.</p>
+        </div>
+        <div style="background-color: var(--color-bg); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+          <div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">4. Offline Settlement</div>
+          <p style="font-size: 0.85rem;">Safe offline payment and security deposit inspection at vehicle pickup.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
