@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ car.brand }} {{ car.model }} — {{ BUSINESS_NAME }}{% endblock %}
+{% block title %}{{ car.brand }} {{ car.model }} — Reviews, Rates & Booking &bull; {{ BUSINESS_NAME }}{% endblock %}
 
 {% block content %}
 <section style="padding: 40px 0 60px;">
@@ -10,11 +10,11 @@
     <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--color-text-muted);">
       <a href="{% url 'home' %}" style="color: var(--color-text-secondary);">Home</a> &bull;
       <a href="{% url 'cars_list' %}" style="color: var(--color-text-secondary);">Fleet</a> &bull;
-      <span style="color: var(--color-primary);">{{ car.brand }} {{ car.model }}</span>
+      <span style="color: var(--color-primary-light);">{{ car.brand }} {{ car.model }}</span>
     </div>
 
     <div class="grid grid-2" style="gap: 32px; align-items: flex-start;">
-      <!-- Left Column: Vehicle Media & Specs -->
+      <!-- Left Column: Vehicle Media, Specs, Overview & Reviews -->
       <div>
         <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 24px; border: 1px solid rgba(0, 210, 255, 0.25);">
           <div style="position: relative; width: 100%; height: 320px; background-color: var(--color-bg-alt);">
@@ -49,16 +49,16 @@
           </div>
         </div>
 
-        <!-- Vehicle Description & Rental Guidelines -->
-        <div class="card">
+        <!-- Vehicle Description & Guidelines -->
+        <div class="card" style="margin-bottom: 24px;">
           <h3 style="margin-bottom: 12px; font-size: 1.15rem;">Vehicle Overview & Included Mileage</h3>
           <p style="color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 16px;">
             {{ car.description|default:"Clean, regularly maintained self-drive car with standard safety features, smooth engine performance, and cold air conditioning." }}
           </p>
 
           <div style="background-color: rgba(0, 210, 255, 0.08); border: 1px solid rgba(0, 210, 255, 0.2); padding: 14px; border-radius: var(--radius-md);">
-            <div style="font-weight: 700; color: var(--color-primary); font-size: 0.9rem; margin-bottom: 4px;">Included Mileage: {{ car.included_km }} km / day</div>
-            <div style="font-size: 0.8rem; color: var(--color-text-secondary);">Extra distance is charged at ₹10 per additional kilometer. Fuel is customer's responsibility (same-to-same policy).</div>
+            <div style="font-weight: 700; color: var(--color-primary-light); font-size: 0.9rem; margin-bottom: 4px;">Included Mileage: {{ car.included_km }} km / day</div>
+            <div style="font-size: 0.8rem; color: var(--color-text-secondary);">Extra distance is charged at ₹{{ car.extra_km_rate }}/km. Fuel is customer's responsibility (same-to-same policy).</div>
           </div>
         </div>
       </div>
@@ -66,28 +66,32 @@
       <!-- Right Column: Booking Request Panel -->
       <div>
         <div class="card card-elevated" style="padding: 28px; border: 1px solid rgba(0, 210, 255, 0.3); position: sticky; top: 88px;">
-          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px;">
             <div>
               <div class="car-brand">{{ car.brand }}</div>
               <h2 style="font-size: 1.6rem;">{{ car.model }}</h2>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <span style="color: var(--color-warning); font-size: 0.95rem;">★ {{ car.average_rating }}</span>
+                <a href="#reviews" style="font-size: 0.8rem; color: var(--color-text-secondary); text-decoration: underline;">
+                  ({{ total_reviews }} review{{ total_reviews|pluralize }})
+                </a>
+              </div>
             </div>
             <div style="text-align: right;">
-              <span style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--color-primary);">₹{{ car.price_per_day }}</span>
+              <span style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--color-primary-light);">₹{{ car.price_per_day }}</span>
               <span style="font-size: 0.85rem; color: var(--color-text-secondary);">/ day</span>
             </div>
           </div>
 
-          <!-- Notice: Owner Confirmation Request Workflow -->
-          <div class="notice-banner notice-info" style="margin-bottom: 20px;">
-            <div style="font-size: 0.825rem; line-height: 1.5;">
-              <strong>Booking Request System:</strong> Submitting a request creates a <strong>PENDING</strong> booking. The owner confirms live schedule & vehicle availability before confirmation.
-            </div>
+          <!-- Notice: Offline Payment Notice -->
+          <div class="notice-banner notice-warning" style="margin-bottom: 20px; font-size: 0.825rem; line-height: 1.5;">
+            <strong>Offline Settlement:</strong> Pay via <strong>UPI or Cash</strong> upon vehicle handover. No online credit card charge.
           </div>
 
           <!-- Action Buttons -->
           <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-            <a href="{% url 'booking_form' car.id %}" class="btn btn-primary btn-lg btn-block">
-              <span>Proceed to Booking Request &rarr;</span>
+            <a href="{% url 'booking_form' car.id %}" class="btn btn-primary btn-lg btn-block" style="font-weight: 700;">
+              <span>Reserve as Guest (Zero Prepayment) &rarr;</span>
             </a>
 
             <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}?text=Hi%20{{ BUSINESS_NAME }}%2C%20I%20am%20interested%20in%20booking%20the%20{{ car.brand }}%20{{ car.model }}%20(₹{{ car.price_per_day }}/day).%20Is%20it%20available%3F" target="_blank" rel="noopener" class="btn btn-whatsapp btn-block">
@@ -105,7 +109,7 @@
               </li>
               <li class="flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                <span>Pre-rental vehicle condition inspection included</span>
+                <span>360° vehicle walkaround inspection included</span>
               </li>
               <li class="flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -116,6 +120,311 @@
         </div>
       </div>
     </div>
+
+    <!-- ============================================================ -->
+    <!-- CUSTOMER REVIEWS & RATING SECTION (FULL HORIZONTAL WIDTH)    -->
+    <!-- ============================================================ -->
+    <div class="card card-elevated" id="reviews" style="margin-top: 40px; padding: 32px; border: 1px solid rgba(0, 210, 255, 0.25); width: 100%;">
+      <!-- Section Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; border-bottom: 1px solid var(--color-border); padding-bottom: 20px;">
+        <div>
+          <h3 style="font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+            <span>Customer Reviews & Ratings</span>
+            <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: var(--color-success); font-size: 0.8rem; padding: 3px 10px;">
+              {{ total_reviews }} Verified Review{{ total_reviews|pluralize }}
+            </span>
+          </h3>
+          <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin: 0;">
+            Authentic feedback and trip ratings from guests who drove the {{ car.brand }} {{ car.model }}.
+          </p>
+        </div>
+
+        <!-- Review Button: Only opens review form when clicked -->
+        <button type="button" id="toggleReviewFormBtn" class="btn {% if auto_open_review %}btn-secondary{% else %}btn-primary{% endif %}" style="font-weight: 700; padding: 10px 22px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          <span id="toggleReviewBtnText">{% if auto_open_review %}Close Review Form{% else %}Write a Review{% endif %}</span>
+        </button>
+      </div>
+
+      <!-- Overall Rating Scorecard & Breakdown Bars (Full Width Horizontal Banner) -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 24px 32px; margin-bottom: 32px;">
+        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-right: 16px; border-right: 1px solid rgba(255, 255, 255, 0.08);">
+          <div style="font-size: 3.5rem; font-weight: 900; line-height: 1; color: var(--color-warning);">
+            {{ car.average_rating }}
+          </div>
+          <div style="color: var(--color-warning); font-size: 1.4rem; margin: 6px 0; letter-spacing: 2px;">
+            ★★★★★
+          </div>
+          <div style="font-size: 0.875rem; color: var(--color-text-secondary); font-weight: 500;">
+            Overall Score based on {{ total_reviews }} rating{{ total_reviews|pluralize }}
+          </div>
+          <div style="margin-top: 8px; font-size: 0.75rem; color: var(--color-success); display: flex; align-items: center; gap: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            100% Genuine Renter Feedback
+          </div>
+        </div>
+
+        <!-- Progress Bars for 5, 4, 3, 2, 1 Stars -->
+        <div style="display: flex; flex-direction: column; gap: 10px; justify-content: center;">
+          {% for star, data in breakdown_pct.items %}
+            <div style="display: flex; align-items: center; gap: 12px; font-size: 0.85rem;">
+              <span style="width: 55px; color: var(--color-text-secondary); text-align: right; font-weight: 600;">{{ star }} Star</span>
+              <div style="flex: 1; height: 10px; background: rgba(255, 255, 255, 0.08); border-radius: 6px; overflow: hidden;">
+                <div style="width: {{ data.pct }}%; height: 100%; background: {% if star >= 4 %}var(--color-warning){% elif star == 3 %}var(--color-primary-light){% else %}var(--color-danger){% endif %}; border-radius: 6px; transition: width 0.4s ease;"></div>
+              </div>
+              <span style="width: 40px; color: var(--color-text-muted); font-size: 0.8rem; text-align: right;">{{ data.count }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Collapsible Review Submission Form (Opens ONLY on Click) -->
+      <div id="write-review" style="display: {% if auto_open_review %}block{% else %}none{% endif %}; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0, 210, 255, 0.35); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 36px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--color-border); padding-bottom: 14px;">
+          <div>
+            <h4 style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-light); margin-bottom: 4px;">
+              Share Your Rental Experience
+            </h4>
+            <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin: 0;">
+              Enter your Name and Booking Reference ID (e.g., <code>KTF-2026-ABCD</code>) to earn your <strong>Verified Renter</strong> badge!
+            </p>
+          </div>
+          <button type="button" id="closeReviewFormBtn" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 1.5rem; line-height: 1;" title="Close Form">&times;</button>
+        </div>
+
+        <form action="{% url 'submit_car_review' car.id %}" method="POST" id="carReviewForm">
+          {% csrf_token %}
+
+          <!-- Interactive Star Selector -->
+          <div class="form-group" style="margin-bottom: 22px;">
+            <label class="form-label form-label-required" style="font-weight: 600;">Your Star Rating</label>
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div id="starRatingGroup" style="display: flex; gap: 8px; font-size: 2.2rem; cursor: pointer; color: var(--color-warning); user-select: none;">
+                <span class="star-btn" data-val="1">★</span>
+                <span class="star-btn" data-val="2">★</span>
+                <span class="star-btn" data-val="3">★</span>
+                <span class="star-btn" data-val="4">★</span>
+                <span class="star-btn" data-val="5">★</span>
+              </div>
+              <span id="ratingLabelText" style="font-size: 1rem; font-weight: 700; color: var(--color-warning); margin-left: 8px;">
+                5.0 / 5.0 (Excellent)
+              </span>
+            </div>
+            {{ review_form.rating }}
+          </div>
+
+          <div class="grid grid-cols-2 gap-4" style="margin-bottom: 16px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label form-label-required" for="reviewCustomerName">Full Name</label>
+              {{ review_form.customer_name }}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="reviewBookingRef">Booking Reference ID (For Verified Badge)</label>
+              {{ review_form.booking_reference }}
+              <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">Found on your booking voucher (e.g. KTF-2026-ABCD).</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4" style="margin-bottom: 16px;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="reviewTripType">Trip Category</label>
+              {{ review_form.trip_type }}
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="reviewTitle">Review Headline</label>
+              {{ review_form.title }}
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 22px;">
+            <label class="form-label form-label-required" for="reviewComment">Detailed Review & Experience</label>
+            {{ review_form.comment }}
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-weight: 700;">
+              Submit Vehicle Review
+            </button>
+            <button type="button" id="cancelReviewBtn" class="btn btn-ghost">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Reviews Horizontal Grid (Responsive Multi-Column Full-Width Cards) -->
+      {% if reviews %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; width: 100%;">
+          {% for review in reviews %}
+            <div class="glass-card" style="padding: 22px 24px; border-radius: var(--radius-lg); border-left: 4px solid {% if review.is_verified_renter %}var(--color-success){% else %}var(--color-primary-light){% endif %}; display: flex; flex-direction: column; justify-content: space-between; height: 100%; transition: transform var(--transition-fast), border-color var(--transition-fast);">
+              <div>
+                <!-- Top Reviewer Row -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; gap: 12px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Avatar circle -->
+                    <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, rgba(0,210,255,0.2), rgba(0,210,255,0.05)); border: 1px solid rgba(0,210,255,0.4); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.95rem; color: var(--color-primary-light);">
+                      {{ review.customer_name|first|upper }}
+                    </div>
+                    <div>
+                      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <strong style="font-size: 0.95rem; color: var(--color-text-primary);">{{ review.customer_name }}</strong>
+                        {% if review.is_verified_renter %}
+                          <span class="badge" style="background: rgba(34, 197, 94, 0.15); color: var(--color-success); font-size: 0.7rem; padding: 2px 8px;">
+                            ✓ Verified Renter
+                          </span>
+                        {% endif %}
+                      </div>
+                      <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 2px;">
+                        {{ review.created_at|date:"M d, Y" }} &bull; <span style="color: var(--color-text-secondary);">{{ review.get_trip_type_display }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Stars Display -->
+                  <div style="color: var(--color-warning); font-size: 1.05rem; letter-spacing: 1.5px; white-space: nowrap;">
+                    {% if review.rating == 5 %}★★★★★
+                    {% elif review.rating == 4 %}★★★★☆
+                    {% elif review.rating == 3 %}★★★☆☆
+                    {% elif review.rating == 2 %}★★☆☆☆
+                    {% else %}★☆☆☆☆{% endif %}
+                  </div>
+                </div>
+
+                <!-- Review Headline -->
+                {% if review.title %}
+                  <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--color-primary-light); line-height: 1.4;">
+                    "{{ review.title }}"
+                  </h4>
+                {% endif %}
+
+                <!-- Review Body -->
+                <p style="color: var(--color-text-secondary); font-size: 0.875rem; line-height: 1.65; margin: 0;">
+                  {{ review.comment }}
+                </p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="text-align: center; padding: 48px 24px; background: rgba(255, 255, 255, 0.02); border-radius: var(--radius-lg); border: 1px dashed var(--color-border);">
+          <div style="font-size: 2.5rem; margin-bottom: 12px;">🌟</div>
+          <h4 style="color: var(--color-text-primary); font-size: 1.1rem; margin-bottom: 6px;">No Customer Reviews Yet</h4>
+          <p style="color: var(--color-text-secondary); font-size: 0.875rem; max-width: 480px; margin: 0 auto 16px;">
+            Be the first guest to share your driving experience with this vehicle. Click the button below to submit a review.
+          </p>
+          <button type="button" onclick="document.getElementById('toggleReviewFormBtn').click();" class="btn btn-secondary btn-sm">
+            Write the First Review
+          </button>
+        </div>
+      {% endif %}
+    </div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Toggle Review Form visibility
+  const toggleBtn = document.getElementById('toggleReviewFormBtn');
+  const reviewFormBox = document.getElementById('write-review');
+  const toggleBtnText = document.getElementById('toggleReviewBtnText');
+  const closeBtn = document.getElementById('closeReviewFormBtn');
+  const cancelBtn = document.getElementById('cancelReviewBtn');
+
+  function openForm() {
+    if (reviewFormBox) {
+      reviewFormBox.style.display = 'block';
+      if (toggleBtnText) toggleBtnText.textContent = 'Close Review Form';
+      if (toggleBtn) {
+        toggleBtn.classList.remove('btn-primary');
+        toggleBtn.classList.add('btn-secondary');
+      }
+      reviewFormBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const nameInput = document.getElementById('reviewCustomerName');
+      if (nameInput) nameInput.focus();
+    }
+  }
+
+  function closeForm() {
+    if (reviewFormBox) {
+      reviewFormBox.style.display = 'none';
+      if (toggleBtnText) toggleBtnText.textContent = 'Write a Review';
+      if (toggleBtn) {
+        toggleBtn.classList.remove('btn-secondary');
+        toggleBtn.classList.add('btn-primary');
+      }
+    }
+  }
+
+  if (toggleBtn && reviewFormBox) {
+    toggleBtn.addEventListener('click', function() {
+      if (reviewFormBox.style.display === 'none' || reviewFormBox.style.display === '') {
+        openForm();
+      } else {
+        closeForm();
+      }
+    });
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeForm);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeForm);
+
+  // Star Rating Interaction
+  const starBtns = document.querySelectorAll('.star-btn');
+  const ratingInput = document.getElementById('selectedRatingInput');
+  const ratingLabel = document.getElementById('ratingLabelText');
+
+  const ratingDescriptions = {
+    1: '1.0 / 5.0 (Poor)',
+    2: '2.0 / 5.0 (Below Average)',
+    3: '3.0 / 5.0 (Average)',
+    4: '4.0 / 5.0 (Very Good)',
+    5: '5.0 / 5.0 (Excellent)'
+  };
+
+  function updateStars(val) {
+    starBtns.forEach(btn => {
+      const btnVal = parseInt(btn.getAttribute('data-val'));
+      if (btnVal <= val) {
+        btn.style.opacity = '1';
+        btn.textContent = '★';
+      } else {
+        btn.style.opacity = '0.3';
+        btn.textContent = '☆';
+      }
+    });
+    if (ratingInput) ratingInput.value = val;
+    if (ratingLabel) ratingLabel.textContent = ratingDescriptions[val] || `${val}.0 / 5.0`;
+  }
+
+  starBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const val = parseInt(this.getAttribute('data-val'));
+      updateStars(val);
+    });
+
+    btn.addEventListener('mouseenter', function() {
+      const val = parseInt(this.getAttribute('data-val'));
+      starBtns.forEach(b => {
+        const bVal = parseInt(b.getAttribute('data-val'));
+        b.style.opacity = bVal <= val ? '1' : '0.3';
+      });
+    });
+  });
+
+  const starGroup = document.getElementById('starRatingGroup');
+  if (starGroup) {
+    starGroup.addEventListener('mouseleave', function() {
+      const currentVal = parseInt(ratingInput ? ratingInput.value : 5) || 5;
+      updateStars(currentVal);
+    });
+  }
+
+  const initialRating = parseInt(ratingInput ? ratingInput.value : 5) || 5;
+  updateStars(initialRating);
+});
+</script>
 {% endblock %}

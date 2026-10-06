@@ -92,3 +92,62 @@ class BookingLookupForm(forms.Form):
             'id': 'customerPhoneInput'
         })
     )
+
+
+class CarReviewForm(forms.Form):
+    """Review & rating submission form using Customer Name and Booking Reference ID."""
+    customer_name = forms.CharField(
+        max_length=120,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Your Full Name (e.g. Rahul Sharma)',
+            'id': 'reviewCustomerName'
+        })
+    )
+    booking_reference = forms.CharField(
+        max_length=35,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'e.g. KTF-2026-ABCD (for Verified Renter badge)',
+            'id': 'reviewBookingRef'
+        })
+    )
+    rating = forms.IntegerField(
+        min_value=1,
+        max_value=5,
+        initial=5,
+        required=True,
+        widget=forms.HiddenInput(attrs={'id': 'selectedRatingInput'})
+    )
+    trip_type = forms.ChoiceField(
+        choices=[
+            ('Vacation', '🏖️ Vacation / Holiday'),
+            ('Family', '👨‍👩‍👦 Family Trip'),
+            ('RoadTrip', '🛣️ Road Trip / Weekend Drive'),
+            ('Business', '💼 Business / Work'),
+            ('Local', '🚗 Local City Drive'),
+        ],
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'reviewTripType'})
+    )
+    title = forms.CharField(
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Short headline (e.g. Pristine car condition, super smooth drive!)',
+            'id': 'reviewTitle'
+        })
+    )
+    comment = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={
+            'class': 'form-input',
+            'rows': 4,
+            'placeholder': 'Share your experience with the car, pickup process, fuel efficiency, cleanliness, etc.',
+            'id': 'reviewComment'
+        })
+    )
+

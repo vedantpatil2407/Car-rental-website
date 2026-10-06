@@ -7,8 +7,9 @@ urlpatterns = [
     path('cars/', views.cars_list_view, name='cars_list'),
     path('cars/<int:car_id>/', views.car_detail_view, name='car_detail'),
 
-    # Guest Booking Flow
+    # Guest Booking Flow & Customer Reviews
     path('cars/<int:car_id>/book/', views.booking_form_view, name='booking_form'),
+    path('cars/<int:car_id>/review/', views.submit_car_review_view, name='submit_car_review'),
     path('booking/submit/', views.booking_submit_view, name='booking_submit'),
     path('booking/lookup/', views.booking_lookup_view, name='booking_lookup'),
     path('booking/<str:booking_ref>/voucher/', views.booking_voucher_view, name='booking_voucher'),

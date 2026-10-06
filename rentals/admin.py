@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 import urllib.parse
-from .models import Location, Car, BookingRequest
+from .models import Location, Car, BookingRequest, CarReview
 
 
 @admin.register(Location)
@@ -119,3 +119,32 @@ class BookingRequestAdmin(admin.ModelAdmin):
     @admin.action(description="Mark selected as WhatsApp SENT")
     def mark_whatsapp_sent(self, request, queryset):
         queryset.update(whatsapp_status='SENT')
+
+
+@admin.register(CarReview)
+class CarReviewAdmin(admin.ModelAdmin):
+    list_display = ('customer_name', 'car', 'star_display', 'trip_type', 'verified_badge', 'is_approved', 'created_at')
+    list_filter = ('rating', 'trip_type', 'is_verified_renter', 'is_approved', 'car')
+    search_fields = ('customer_name', 'customer_phone', 'title', 'comment', 'car__brand', 'car__model')
+    list_editable = ('is_approved',)
+    actions = ['approve_reviews', 'mark_as_verified']
+
+    def star_display(self, obj):
+        stars = '★' * obj.rating + '☆' * (5 - obj.rating)
+        color = '#F59E0B' if obj.rating >= 4 else ('#FBBF24' if obj.rating == 3 else '#EF4444')
+        return format_html('<span style="color: {}; font-weight: bold;">{}</span>', color, stars)
+    star_display.short_description = "Rating"
+
+    def verified_badge(self, obj):
+        if obj.is_verified_renter:
+            return format_html('<span style="color: #10B981; font-weight: 600;">✓ Verified Renter</span>')
+        return format_html('<span style="color: #94A3B8;">Guest</span>')
+    verified_badge.short_description = "Verification"
+
+    @admin.action(description="Approve selected reviews")
+    def approve_reviews(self, request, queryset):
+        queryset.update(is_approved=True)
+
+    @admin.action(description="Mark selected as Verified Renters")
+    def mark_as_verified(self, request, queryset):
+        queryset.update(is_verified_renter=True)

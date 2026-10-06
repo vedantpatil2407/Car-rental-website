@@ -74,6 +74,10 @@
                 <div>
                   <div class="car-brand">{{ car.brand }}</div>
                   <div class="car-title">{{ car.model }}</div>
+                  <div style="display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: var(--color-warning); margin-top: 2px;">
+                    <span>★ {{ car.average_rating }}</span>
+                    <span style="color: var(--color-text-muted);">({{ car.review_count }})</span>
+                  </div>
                 </div>
                 <div class="car-price-wrap">
                   <div class="car-price">₹{{ car.price_per_day }}</div>

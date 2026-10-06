@@ -99,6 +99,18 @@ class Car(models.Model):
     def display_title(self):
         return f"{self.brand} {self.model}"
 
+    @property
+    def average_rating(self):
+        reviews = self.reviews.filter(is_approved=True)
+        if reviews.exists():
+            avg = reviews.aggregate(models.Avg('rating'))['rating__avg']
+            return round(avg, 1) if avg else 5.0
+        return 5.0
+
+    @property
+    def review_count(self):
+        return self.reviews.filter(is_approved=True).count()
+
     def is_available_for_dates(self, pickup_date, return_date, exclude_booking_id=None):
         """Check if vehicle has any overlapping confirmed or pending bookings for given date range."""
         if not pickup_date or not return_date:
@@ -288,3 +300,48 @@ class BookingRequest(models.Model):
 
 # Alias Booking to BookingRequest for clean and flexible imports
 Booking = BookingRequest
+
+
+class CarReview(models.Model):
+    TRIP_TYPE_CHOICES = [
+        ('Vacation', 'Vacation / Holiday'),
+        ('Family', 'Family Trip'),
+        ('RoadTrip', 'Road Trip / Weekend Drive'),
+        ('Business', 'Business / Work'),
+        ('Local', 'Local City Drive'),
+    ]
+
+    RATING_CHOICES = [
+        (5, '★★★★★ (5/5) — Excellent'),
+        (4, '★★★★☆ (4/5) — Very Good'),
+        (3, '★★★☆☆ (3/5) — Average'),
+        (2, '★★☆☆☆ (2/5) — Below Average'),
+        (1, '★☆☆☆☆ (1/5) — Poor'),
+    ]
+
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='reviews')
+    booking = models.ForeignKey(
+        BookingRequest,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviews',
+        help_text="Linked verified booking request"
+    )
+    customer_name = models.CharField(max_length=120, help_text="Reviewer full name")
+    customer_phone = models.CharField(max_length=20, blank=True, default="", help_text="Renter phone number")
+    rating = models.PositiveSmallIntegerField(default=5, choices=RATING_CHOICES, help_text="Star rating (1-5)")
+    title = models.CharField(max_length=150, blank=True, default="", help_text="Review headline")
+    comment = models.TextField(help_text="Detailed feedback on vehicle condition, drive experience, and service")
+    trip_type = models.CharField(max_length=40, choices=TRIP_TYPE_CHOICES, default='Vacation')
+    is_verified_renter = models.BooleanField(default=False, help_text="Verified through booking reference and phone")
+    is_approved = models.BooleanField(default=True, help_text="Visibility status for moderation")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Customer Review"
+        verbose_name_plural = "Customer Reviews"
+
+    def __str__(self):
+        return f"{self.customer_name} ({self.rating}★) — {self.car}"

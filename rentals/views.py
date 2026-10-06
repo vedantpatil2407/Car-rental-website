@@ -4,8 +4,8 @@ from django.db.models import Q
 from datetime import date, datetime, timedelta
 import urllib.parse
 
-from .models import Location, Car, BookingRequest, Booking
-from .forms import BookingForm, BookingLookupForm
+from .models import Location, Car, BookingRequest, Booking, CarReview
+from .forms import BookingForm, BookingLookupForm, CarReviewForm
 from .services import NotificationService
 
 
@@ -84,7 +84,7 @@ def cars_list_view(request):
 
 
 def car_detail_view(request, car_id):
-    """Render car specification, rental terms, and direct booking trigger."""
+    """Render car specification, rental terms, customer reviews/ratings, and direct booking trigger."""
     car = get_object_or_404(Car, id=car_id, is_active=True)
     locations = Location.objects.filter(is_active=True)
     similar_cars = Car.objects.filter(is_active=True, vehicle_class=car.vehicle_class).exclude(id=car.id)[:3]
@@ -94,13 +94,107 @@ def car_detail_view(request, car_id):
     today = date.today().isoformat()
     default_return = (date.today() + timedelta(days=2)).isoformat()
 
+    # Customer Reviews & Rating Analytics
+    reviews = car.reviews.filter(is_approved=True).order_by('-created_at')
+    total_reviews = reviews.count()
+    
+    # Rating breakdown
+    breakdown = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+    for r in reviews:
+        if r.rating in breakdown:
+            breakdown[r.rating] += 1
+            
+    breakdown_pct = {}
+    for star in [5, 4, 3, 2, 1]:
+        count = breakdown[star]
+        pct = int((count / total_reviews * 100)) if total_reviews > 0 else 0
+        breakdown_pct[star] = {'count': count, 'pct': pct}
+
+    # Pre-fill review form if coming from voucher/lookup
+    ref_param = request.GET.get('review_ref', '').strip().upper()
+    name_param = request.GET.get('name', '').strip()
+    auto_open_review = bool(ref_param or request.GET.get('write_review'))
+    initial_review_data = {
+        'rating': 5,
+        'booking_reference': ref_param,
+        'customer_name': name_param,
+    }
+    review_form = CarReviewForm(initial=initial_review_data)
+
     return render(request, 'rentals/car_detail.html', {
         'car': car,
         'locations': locations,
         'similar_cars': similar_cars,
         'today': today,
         'default_return': default_return,
+        'reviews': reviews,
+        'total_reviews': total_reviews,
+        'breakdown_pct': breakdown_pct,
+        'review_form': review_form,
+        'auto_open_review': auto_open_review,
     })
+
+
+def submit_car_review_view(request, car_id):
+    """Handle review and star rating submission with name and booking reference verification."""
+    car = get_object_or_404(Car, id=car_id, is_active=True)
+
+    if request.method == 'POST':
+        form = CarReviewForm(request.POST)
+        if form.is_valid():
+            customer_name = form.cleaned_data['customer_name'].strip()
+            booking_ref = form.cleaned_data.get('booking_reference', '').strip().upper()
+            rating = form.cleaned_data['rating']
+            title = form.cleaned_data.get('title', '').strip()
+            comment = form.cleaned_data['comment'].strip()
+            trip_type = form.cleaned_data.get('trip_type', 'Vacation')
+
+            # Verification logic using Booking Reference ID
+            matching_booking = None
+            is_verified = False
+            customer_phone = ""
+            if booking_ref:
+                matching_booking = BookingRequest.objects.filter(booking_ref__iexact=booking_ref, car=car).first()
+                if matching_booking:
+                    is_verified = True
+                    customer_phone = matching_booking.customer_phone or matching_booking.customer_mobile
+
+            # Check if this booking was already reviewed
+            if matching_booking and CarReview.objects.filter(booking=matching_booking).exists():
+                existing_review = CarReview.objects.filter(booking=matching_booking).first()
+                existing_review.rating = rating
+                existing_review.title = title
+                existing_review.comment = comment
+                existing_review.trip_type = trip_type
+                existing_review.customer_name = customer_name
+                existing_review.save()
+                messages.success(request, f"Thank you, {customer_name}! Your review for {car.brand} {car.model} has been updated.")
+            else:
+                CarReview.objects.create(
+                    car=car,
+                    booking=matching_booking,
+                    customer_name=customer_name,
+                    customer_phone=customer_phone,
+                    rating=rating,
+                    title=title,
+                    comment=comment,
+                    trip_type=trip_type,
+                    is_verified_renter=is_verified,
+                    is_approved=True
+                )
+                if is_verified:
+                    messages.success(request, f"🌟 Thank you {customer_name}! Your Verified Renter review ({rating}★) for {car.brand} {car.model} is now live.")
+                else:
+                    messages.success(request, f"🌟 Thank you {customer_name}! Your review ({rating}★) for {car.brand} {car.model} has been published successfully.")
+
+            from django.urls import reverse
+            return redirect(f"{reverse('car_detail', args=[car.id])}#reviews")
+        else:
+            messages.error(request, "Please check your review submission fields and try again.")
+            from django.urls import reverse
+            return redirect(f"{reverse('car_detail', args=[car.id])}?write_review=1#write-review")
+
+    return redirect('car_detail', car_id=car.id)
 
 
 def booking_form_view(request, car_id):

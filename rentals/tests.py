@@ -260,3 +260,88 @@ class NotificationServicesTests(TestCase):
         self.assertTrue(results['email_sent'])
         self.booking.refresh_from_db()
         self.assertEqual(self.booking.email_status, 'SENT')
+
+
+class CustomerReviewsAndRatingTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.location = Location.objects.create(name="Airport Hub", address="Terminal 2")
+        self.car = Car.objects.create(
+            brand="Toyota",
+            model="Innova Crysta",
+            vehicle_class="MUV",
+            price_per_day=3800,
+            security_deposit=5000
+        )
+        self.booking = BookingRequest.objects.create(
+            car=self.car,
+            customer_name="Vikram Sethi",
+            customer_phone="+91 9123456780",
+            customer_email="vikram@example.com",
+            pickup_location=self.location,
+            pickup_date=date.today() - timedelta(days=5),
+            return_date=date.today() - timedelta(days=2),
+            status='COMPLETED'
+        )
+
+    def test_verified_review_submission(self):
+        """Test submitting a review with valid booking ref grants Verified Renter badge without needing phone."""
+        review_data = {
+            'customer_name': 'Vikram Sethi',
+            'booking_reference': self.booking.booking_ref,
+            'rating': 5,
+            'trip_type': 'Family',
+            'title': 'Outstanding road presence and ultra clean car!',
+            'comment': 'The Innova Crysta was spotless. Handover at Airport was seamless and AC was chilling cold.'
+        }
+
+        resp = self.client.post(reverse('submit_car_review', args=[self.car.id]), review_data)
+        self.assertEqual(resp.status_code, 302)
+
+        # Check DB
+        review = self.car.reviews.first()
+        self.assertIsNotNone(review)
+        self.assertEqual(review.rating, 5)
+        self.assertTrue(review.is_verified_renter)
+        self.assertEqual(review.booking, self.booking)
+        self.assertEqual(self.car.average_rating, 5.0)
+        self.assertEqual(self.car.review_count, 1)
+
+    def test_guest_review_submission_without_booking_ref(self):
+        """Test submitting a guest review without reference code creates unverified approved review."""
+        review_data = {
+            'customer_name': 'Sneha Kapoor',
+            'rating': 4,
+            'trip_type': 'Vacation',
+            'title': 'Smooth drive through the hills',
+            'comment': 'Really enjoyed driving this vehicle for our weekend trip.'
+        }
+
+        resp = self.client.post(reverse('submit_car_review', args=[self.car.id]), review_data)
+        self.assertEqual(resp.status_code, 302)
+
+        review = self.car.reviews.get(customer_name='Sneha Kapoor')
+        self.assertEqual(review.rating, 4)
+        self.assertFalse(review.is_verified_renter)
+        self.assertIsNone(review.booking)
+
+    def test_car_detail_page_renders_reviews_and_scorecard(self):
+        """Test car detail page shows rating breakdown, star averages, and review cards."""
+        self.car.reviews.create(
+            customer_name="Karan Johar",
+            rating=5,
+            trip_type="RoadTrip",
+            title="Exceptional Service",
+            comment="Car delivered on time.",
+            is_verified_renter=True,
+            is_approved=True
+        )
+
+        resp = self.client.get(reverse('car_detail', args=[self.car.id]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Customer Reviews")
+        self.assertContains(resp, "Karan Johar")
+        self.assertContains(resp, "Exceptional Service")
+        self.assertContains(resp, "✓ Verified Renter")
+        self.assertContains(resp, "Write a Review")
+
