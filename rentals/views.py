@@ -1,215 +1,318 @@
-from django.shortcuts import render, redirect
-from datetime import date, timedelta
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.db.models import Q
+from datetime import date, datetime, timedelta
+import urllib.parse
 
-# Initial mock fleet catalogue for Part 1 UI presentation (to be replaced with database models in Part 2)
-MOCK_CARS = [
-    {
-        'id': 1,
-        'brand': 'Hyundai',
-        'model': 'Creta SX (O)',
-        'vehicle_class': 'SUV',
-        'price_per_day': 2800,
-        'seats': 5,
-        'fuel_type': 'Diesel',
-        'transmission': 'Manual',
-        'ac_status': 'Cold A/C',
-        'included_km': 250,
-        'badge': 'Popular',
-        'image_url': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80',
-        'description': 'Spacious and commanding compact SUV, ideal for city cruising and long highway drives with high fuel economy.',
-    },
-    {
-        'id': 2,
-        'brand': 'Maruti Suzuki',
-        'model': 'Swift ZXi',
-        'vehicle_class': 'Hatchback',
-        'price_per_day': 1600,
-        'seats': 5,
-        'fuel_type': 'Petrol',
-        'transmission': 'Manual',
-        'ac_status': 'Cold A/C',
-        'included_km': 200,
-        'badge': 'Economic',
-        'image_url': 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80',
-        'description': 'Agile, reliable, and fuel-efficient hatchback designed for easy urban navigation and effortless parking.',
-    },
-    {
-        'id': 3,
-        'brand': 'Mahindra',
-        'model': 'Thar 4x4 Hard Top',
-        'vehicle_class': 'SUV',
-        'price_per_day': 3500,
-        'seats': 4,
-        'fuel_type': 'Diesel',
-        'transmission': 'Automatic',
-        'ac_status': 'Cold A/C',
-        'included_km': 200,
-        'badge': 'Adventure',
-        'image_url': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80',
-        'description': 'Iconic 4x4 off-road SUV with high ground clearance, powerful torque, and commanding road presence.',
-    },
-    {
-        'id': 4,
-        'brand': 'Toyota',
-        'model': 'Innova Crysta',
-        'vehicle_class': 'MUV',
-        'price_per_day': 4200,
-        'seats': 7,
-        'fuel_type': 'Diesel',
-        'transmission': 'Automatic',
-        'ac_status': 'Dual A/C',
-        'included_km': 300,
-        'badge': '7-Seater',
-        'image_url': 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=800&q=80',
-        'description': 'Ultimate comfort for family vacations and group travels with captain seating and large luggage volume.',
-    },
-    {
-        'id': 5,
-        'brand': 'Honda',
-        'model': 'City V-CVT',
-        'vehicle_class': 'Sedan',
-        'price_per_day': 2400,
-        'seats': 5,
-        'fuel_type': 'Petrol',
-        'transmission': 'Automatic',
-        'ac_status': 'Cold A/C',
-        'included_km': 250,
-        'badge': 'Comfort Sedan',
-        'image_url': 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80',
-        'description': 'Smooth luxury sedan with premium ride quality, plush interior finish, and effortless automatic gearbox.',
-    },
-    {
-        'id': 6,
-        'brand': 'Tata',
-        'model': 'Nexon EV Prime',
-        'vehicle_class': 'SUV',
-        'price_per_day': 2600,
-        'seats': 5,
-        'fuel_type': 'EV',
-        'transmission': 'Automatic',
-        'ac_status': 'Climate Control',
-        'included_km': 220,
-        'badge': 'Eco Electric',
-        'image_url': 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=800&q=80',
-        'description': 'Modern zero-emission electric compact SUV with instant acceleration and whisper-quiet cabin comfort.',
-    },
-]
-
-MOCK_LOCATIONS = [
-    {
-        'id': 1,
-        'name': 'Dabolim International Airport Terminal',
-        'address': 'Arrival Pick-up Zone 2, Dabolim, Goa',
-        'maps_link': 'https://maps.google.com/?q=Goa+Airport',
-    },
-    {
-        'id': 2,
-        'name': 'Mopa (Manohar) International Airport',
-        'address': 'Commercial Hub Exit, Pernem, North Goa',
-        'maps_link': 'https://maps.google.com/?q=Mopa+Airport',
-    },
-    {
-        'id': 3,
-        'name': 'Central City Hub & Train Junction',
-        'address': 'Station Road, Near Bus Interchange',
-        'maps_link': 'https://maps.google.com/?q=Madgaon+Railway+Station',
-    },
-]
+from .models import Location, Car, BookingRequest, Booking
+from .forms import BookingForm, BookingLookupForm
+from .services import NotificationService
 
 
 def home_view(request):
-    """Render public homepage with search widget and featured cars."""
+    """Render public homepage with search widget, fleet showcase, and key benefits."""
     today = date.today().isoformat()
     tomorrow = (date.today() + timedelta(days=2)).isoformat()
+    
+    featured_cars = Car.objects.filter(is_active=True, is_featured=True)[:4]
+    if not featured_cars.exists():
+        featured_cars = Car.objects.filter(is_active=True)[:4]
+        
+    locations = Location.objects.filter(is_active=True)
+
     return render(request, 'rentals/home.html', {
-        'featured_cars': MOCK_CARS[:3],
-        'locations': MOCK_LOCATIONS,
+        'featured_cars': featured_cars,
+        'locations': locations,
         'today': today,
         'tomorrow': tomorrow,
     })
 
 
 def cars_list_view(request):
-    """Render fleet catalog with filter parameters."""
-    selected_class = request.GET.get('vehicle_class', '')
-    selected_trans = request.GET.get('transmission', '')
-    selected_fuel = request.GET.get('fuel_type', '')
+    """Render fleet catalog with live filtering and availability indicators."""
+    cars_qs = Car.objects.filter(is_active=True)
 
-    filtered = MOCK_CARS
+    selected_class = request.GET.get('vehicle_class', '').strip()
+    selected_trans = request.GET.get('transmission', '').strip()
+    selected_fuel = request.GET.get('fuel_type', '').strip()
+    search_query = request.GET.get('q', '').strip()
+    pickup_date_str = request.GET.get('pickup_date', '').strip()
+    return_date_str = request.GET.get('return_date', '').strip()
+
     if selected_class:
-        filtered = [c for c in filtered if c['vehicle_class'].lower() == selected_class.lower()]
+        cars_qs = cars_qs.filter(vehicle_class__iexact=selected_class)
     if selected_trans:
-        filtered = [c for c in filtered if selected_trans.lower() in c['transmission'].lower()]
+        cars_qs = cars_qs.filter(transmission__icontains=selected_trans)
     if selected_fuel:
-        filtered = [c for c in filtered if c['fuel_type'].lower() == selected_fuel.lower()]
+        cars_qs = cars_qs.filter(fuel_type__iexact=selected_fuel)
+    if search_query:
+        cars_qs = cars_qs.filter(
+            Q(brand__icontains=search_query) |
+            Q(model__icontains=search_query) |
+            Q(badge__icontains=search_query)
+        )
+
+    # Date availability filtering
+    p_date = None
+    r_date = None
+    if pickup_date_str and return_date_str:
+        try:
+            p_date = datetime.strptime(pickup_date_str, '%Y-%m-%d').date()
+            r_date = datetime.strptime(return_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            pass
+
+    cars_list = []
+    for car in cars_qs:
+        car.is_available_selected = True
+        if p_date and r_date:
+            car.is_available_selected = car.is_available_for_dates(p_date, r_date)
+        cars_list.append(car)
+
+    locations = Location.objects.filter(is_active=True)
 
     return render(request, 'rentals/cars.html', {
-        'cars': filtered,
-        'locations': MOCK_LOCATIONS,
+        'cars': cars_list,
+        'locations': locations,
         'selected_class': selected_class,
         'selected_trans': selected_trans,
         'selected_fuel': selected_fuel,
+        'search_query': search_query,
+        'pickup_date': pickup_date_str,
+        'return_date': return_date_str,
     })
 
 
 def car_detail_view(request, car_id):
-    """Render car specification and rental detail view."""
-    car = next((c for c in MOCK_CARS if c['id'] == int(car_id)), MOCK_CARS[0])
+    """Render car specification, rental terms, and direct booking trigger."""
+    car = get_object_or_404(Car, id=car_id, is_active=True)
+    locations = Location.objects.filter(is_active=True)
+    similar_cars = Car.objects.filter(is_active=True, vehicle_class=car.vehicle_class).exclude(id=car.id)[:3]
+    if not similar_cars.exists():
+        similar_cars = Car.objects.filter(is_active=True).exclude(id=car.id)[:3]
+
+    today = date.today().isoformat()
+    default_return = (date.today() + timedelta(days=2)).isoformat()
+
     return render(request, 'rentals/car_detail.html', {
         'car': car,
-        'locations': MOCK_LOCATIONS,
+        'locations': locations,
+        'similar_cars': similar_cars,
+        'today': today,
+        'default_return': default_return,
     })
 
 
 def booking_form_view(request, car_id):
-    """Render booking request form with mandatory policy acceptance and WhatsApp number field."""
-    car = next((c for c in MOCK_CARS if c['id'] == int(car_id)), MOCK_CARS[0])
+    """Render guest checkout booking form with real-time pricing calculator and offline payment breakdown."""
+    car = get_object_or_404(Car, id=car_id, is_active=True)
+    locations = Location.objects.filter(is_active=True)
+    
+    pickup_date_param = request.GET.get('pickup_date', '')
+    return_date_param = request.GET.get('return_date', '')
+
+    today = date.today().isoformat()
+    default_return = (date.today() + timedelta(days=2)).isoformat()
+
     return render(request, 'rentals/booking_form.html', {
         'car': car,
-        'locations': MOCK_LOCATIONS,
+        'locations': locations,
+        'today': today,
+        'default_return': default_return,
+        'pickup_date_param': pickup_date_param or today,
+        'return_date_param': return_date_param or default_return,
     })
 
 
 def booking_submit_view(request):
-    """Handle booking submission and show booking submitted confirmation page."""
+    """
+    Handle 100% Guest Booking Submission:
+    1. Direct guest details collection (name, phone, email, driving license).
+    2. Overlap Availability Check (Prevent double booking).
+    3. Automatic generation of Reference Code (KTF-YYYY-XXXX).
+    4. Offline payment terms calculation & notification dispatch.
+    """
     if request.method == 'POST':
-        car_id = request.POST.get('car_id', 1)
-        car = next((c for c in MOCK_CARS if c['id'] == int(car_id)), MOCK_CARS[0])
-        customer_name = request.POST.get('customer_name', 'Customer')
-        customer_mobile = request.POST.get('customer_mobile', '')
-        customer_whatsapp = request.POST.get('customer_whatsapp', customer_mobile)
-        pickup_location_id = request.POST.get('pickup_location', '')
-        pickup_date = request.POST.get('pickup_date', '')
-        pickup_time = request.POST.get('pickup_time', '10:00')
-        return_date = request.POST.get('return_date', '')
-        return_time = request.POST.get('return_time', '10:00')
-        
-        loc_name = 'Main Terminal'
-        for loc in MOCK_LOCATIONS:
-            if str(loc['id']) == str(pickup_location_id):
-                loc_name = loc['name']
+        car_id = request.POST.get('car_id')
+        car = get_object_or_404(Car, id=car_id)
 
-        # Generate sample human-friendly reference for Part 1 UI demonstration
-        booking_ref = "KTF-2026-0001"
+        customer_name = request.POST.get('customer_name', '').strip()
+        customer_phone = request.POST.get('customer_phone', '').strip() or request.POST.get('customer_mobile', '').strip()
+        customer_email = request.POST.get('customer_email', '').strip()
+        driving_license_number = request.POST.get('driving_license_number', '').strip()
+
+        pickup_loc_id = request.POST.get('pickup_location')
+        pickup_location = None
+        if pickup_loc_id:
+            pickup_location = Location.objects.filter(id=pickup_loc_id).first()
+
+        pickup_date_str = request.POST.get('pickup_date')
+        pickup_time = request.POST.get('pickup_time', '10:00')
+        return_date_str = request.POST.get('return_date')
+        return_time = request.POST.get('return_time', '10:00')
+
+        try:
+            pickup_date_val = datetime.strptime(pickup_date_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            pickup_date_val = date.today()
+
+        try:
+            return_date_val = datetime.strptime(return_date_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            return_date_val = pickup_date_val + timedelta(days=2)
+
+        # Ensure return date is not before pickup date
+        if return_date_val < pickup_date_val:
+            return_date_val = pickup_date_val
+
+        # Fleet Availability Check
+        if not car.is_available_for_dates(pickup_date_val, return_date_val):
+            messages.error(
+                request,
+                f"Selected vehicle {car.brand} {car.model} is already booked from {pickup_date_val} to {return_date_val}. Please select alternative dates or choose another car from our fleet."
+            )
+            from django.urls import reverse
+            return redirect(f"{reverse('booking_form', args=[car.id])}?pickup_date={pickup_date_val}&return_date={return_date_val}")
+
+        policy_accepted = request.POST.get('policy_accepted') in ['on', 'true', '1', True]
+
+        # Save directly to BookingRequest without requiring customer auth
+        booking = BookingRequest.objects.create(
+            user=None,
+            car=car,
+            customer_name=customer_name or "Guest Customer",
+            customer_phone=customer_phone,
+            customer_mobile=customer_phone,
+            customer_whatsapp=customer_phone,
+            customer_email=customer_email,
+            driving_license_number=driving_license_number,
+            pickup_location=pickup_location,
+            pickup_date=pickup_date_val,
+            pickup_time=pickup_time,
+            return_date=return_date_val,
+            return_time=return_time,
+            policy_accepted=policy_accepted,
+            status='PENDING',
+            whatsapp_status='NOT_SENT'
+        )
+
+        # Dispatch automated confirmation notifications
+        notif_result = NotificationService.send_automated_notifications(booking, 'REQUEST_SUBMITTED', request)
 
         return render(request, 'rentals/booking_submitted.html', {
             'car': car,
-            'booking_ref': booking_ref,
-            'customer_name': customer_name,
-            'customer_whatsapp': customer_whatsapp,
-            'pickup_location': loc_name,
-            'pickup_date': pickup_date,
-            'pickup_time': pickup_time,
-            'return_date': return_date,
-            'return_time': return_time,
+            'booking': booking,
+            'booking_ref': booking.booking_ref,
+            'customer_name': booking.customer_name,
+            'customer_phone': booking.customer_phone,
+            'customer_email': booking.customer_email,
+            'pickup_location': booking.pickup_location.name if booking.pickup_location else "Main Hub",
+            'pickup_date': booking.pickup_date.isoformat(),
+            'pickup_time': booking.pickup_time,
+            'return_date': booking.return_date.isoformat(),
+            'return_time': booking.return_time,
+            'total_days': booking.total_days,
+            'net_rental_amount': booking.net_rental_amount,
+            'security_deposit': booking.security_deposit,
+            'payable_at_pickup': booking.payable_at_pickup,
+            'whatsapp_direct_link': notif_result.get('whatsapp_link'),
         })
+
     return redirect('cars_list')
 
 
+def booking_voucher_view(request, booking_ref):
+    """Digital & printable rental voucher with complete offline payment breakdown and pickup details."""
+    booking = get_object_or_404(BookingRequest.objects.select_related('car', 'pickup_location'), booking_ref=booking_ref)
+    wa_direct = NotificationService.get_whatsapp_deep_link(booking, 'CONFIRMED' if booking.status == 'CONFIRMED' else 'REQUEST_SUBMITTED')
+
+    return render(request, 'rentals/voucher.html', {
+        'booking': booking,
+        'car': booking.car,
+        'wa_direct': wa_direct,
+    })
+
+
+def booking_lookup_view(request):
+    """
+    Guest booking tracking view.
+    Allows guests to retrieve their booking, view status, and download their voucher
+    using booking_reference (or booking_ref) and customer_phone (or mobile).
+    """
+    booking = None
+    searched = False
+
+    if request.method == 'POST':
+        ref = (request.POST.get('booking_reference') or request.POST.get('booking_ref', '')).strip().upper()
+        phone_input = (request.POST.get('customer_phone') or request.POST.get('mobile', '')).strip()
+        searched = True
+
+        if ref and phone_input:
+            clean_digits = ''.join(filter(str.isdigit, phone_input))
+            # Match by reference code
+            candidates = BookingRequest.objects.filter(booking_ref__iexact=ref).select_related('car', 'pickup_location')
+            for b in candidates:
+                b_phone = ''.join(filter(str.isdigit, b.customer_phone or b.customer_mobile or b.customer_whatsapp))
+                if clean_digits in b_phone or b_phone in clean_digits or b.customer_phone == phone_input:
+                    booking = b
+                    break
+
+            if not booking:
+                messages.error(request, "No booking found matching this Reference ID and Phone Number combination.")
+        else:
+            messages.error(request, "Please provide both your Booking Reference ID and registered Phone Number.")
+
+        form = BookingLookupForm(initial={'booking_reference': ref, 'customer_phone': phone_input})
+    else:
+        # Pre-fill if passed via GET query params
+        ref_param = request.GET.get('ref', '').strip().upper()
+        phone_param = request.GET.get('phone', '').strip()
+        form = BookingLookupForm(initial={'booking_reference': ref_param, 'customer_phone': phone_param})
+        if ref_param and phone_param:
+            clean_digits = ''.join(filter(str.isdigit, phone_param))
+            candidates = BookingRequest.objects.filter(booking_ref__iexact=ref_param).select_related('car', 'pickup_location')
+            for b in candidates:
+                b_phone = ''.join(filter(str.isdigit, b.customer_phone or b.customer_mobile or b.customer_whatsapp))
+                if clean_digits in b_phone or b_phone in clean_digits:
+                    booking = b
+                    searched = True
+                    break
+
+    return render(request, 'rentals/booking_lookup.html', {
+        'form': form,
+        'booking': booking,
+        'searched': searched,
+    })
+
+
+def cancel_booking_view(request, booking_ref):
+    """Allows guests to cancel their reservation with offline verification."""
+    booking = get_object_or_404(BookingRequest, booking_ref=booking_ref)
+
+    if request.method == 'POST':
+        reason = request.POST.get('reason', 'Cancelled by customer via portal')
+        booking.status = 'CANCELLED'
+        booking.cancellation_reason = reason
+        booking.save()
+
+        # Trigger notification
+        NotificationService.send_automated_notifications(booking, 'CANCELLED', request)
+
+        messages.success(request, f"Booking {booking.booking_ref} has been cancelled successfully. No charges apply.")
+        return redirect('booking_voucher', booking_ref=booking.booking_ref)
+
+    return redirect('booking_voucher', booking_ref=booking.booking_ref)
+
+
+# -------------------------------------------------------------------
+# Static Legal & Informational Pages
+# -------------------------------------------------------------------
+
 def contact_view(request):
     """Render contact and pickup location information."""
+    locations = Location.objects.filter(is_active=True)
     return render(request, 'rentals/contact.html', {
-        'locations': MOCK_LOCATIONS,
+        'locations': locations,
     })
 
 
@@ -233,6 +336,56 @@ def privacy_view(request):
     return render(request, 'rentals/privacy.html')
 
 
+# -------------------------------------------------------------------
+# Owner Operations Admin Shell (Staff / Superusers)
+# -------------------------------------------------------------------
+
 def admin_shell_preview_view(request):
-    """Render Owner Admin Portal preview shell."""
-    return render(request, 'rentals/admin_shell.html')
+    """Owner Operations Control Dashboard with live actions and automated notifications."""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        booking_id = request.POST.get('booking_id')
+        if booking_id:
+            booking = get_object_or_404(BookingRequest, id=booking_id)
+            if action == 'confirm':
+                booking.status = 'CONFIRMED'
+                booking.save()
+                NotificationService.send_automated_notifications(booking, 'CONFIRMED', request)
+                messages.success(request, f"Booking {booking.booking_ref} marked as CONFIRMED. Customer notified.")
+            elif action == 'reject':
+                booking.status = 'REJECTED'
+                booking.save()
+                NotificationService.send_automated_notifications(booking, 'REJECTED', request)
+                messages.warning(request, f"Booking {booking.booking_ref} marked as REJECTED. Customer notified.")
+            elif action == 'mark_whatsapp_sent':
+                booking.whatsapp_status = 'SENT'
+                booking.save()
+                messages.success(request, f"WhatsApp confirmation marked as SENT for {booking.booking_ref}.")
+        return redirect('admin_shell_preview')
+
+    status_filter = request.GET.get('status', '').strip()
+    bookings_qs = BookingRequest.objects.select_related('car', 'pickup_location').all()
+
+    if status_filter:
+        bookings_qs = bookings_qs.filter(status=status_filter)
+
+    pending_count = BookingRequest.objects.filter(status='PENDING').count()
+    confirmed_count = BookingRequest.objects.filter(status='CONFIRMED').count()
+    total_cars_count = Car.objects.filter(is_active=True).count()
+    pending_wa_count = BookingRequest.objects.filter(status='CONFIRMED', whatsapp_status='NOT_SENT').count()
+
+    # Pre-generate rich WhatsApp helper links
+    bookings_list = []
+    for b in bookings_qs[:25]:
+        event_type = 'CONFIRMED' if b.status == 'CONFIRMED' else ('REJECTED' if b.status == 'REJECTED' else 'REQUEST_SUBMITTED')
+        b.wa_link = NotificationService.get_whatsapp_deep_link(b, event_type)
+        bookings_list.append(b)
+
+    return render(request, 'rentals/admin_shell.html', {
+        'bookings': bookings_list,
+        'pending_count': pending_count,
+        'confirmed_count': confirmed_count,
+        'total_cars_count': total_cars_count,
+        'pending_wa_count': pending_wa_count,
+        'status_filter': status_filter,
+    })

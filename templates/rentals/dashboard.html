@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section" style="text-align: center; padding: 60px 0;">
+  <div class="container" style="max-width: 500px;">
+    <div class="glass-card" style="padding: 36px 24px; border-radius: var(--radius-lg);">
+      <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Track Your Reservation</h2>
+      <p style="color: var(--color-text-secondary); margin-bottom: 24px; font-size: 0.95rem;">
+        Guest reservations can be tracked using your Booking Reference ID and phone number.
+      </p>
+      <div class="flex gap-2 justify-center">
+        <a href="{% url 'booking_lookup' %}" class="btn btn-primary btn-sm">Track Booking</a>
+        <a href="{% url 'cars_list' %}" class="btn btn-secondary btn-sm">Browse Fleet</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

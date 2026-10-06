@@ -1,31 +1,31 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Request Booking — {{ car.brand }} {{ car.model }} &bull; {{ BUSINESS_NAME }}{% endblock %}
+{% block title %}Guest Booking — {{ car.brand }} {{ car.model }} &bull; {{ BUSINESS_NAME }}{% endblock %}
 
 {% block content %}
 <section style="padding: 40px 0 60px;">
-  <div class="container" style="max-width: 860px;">
+  <div class="container" style="max-width: 880px;">
     <!-- Breadcrumb -->
     <div style="margin-bottom: 20px; font-size: 0.85rem; color: var(--color-text-muted);">
       <a href="{% url 'home' %}" style="color: var(--color-text-secondary);">Home</a> &bull;
       <a href="{% url 'cars_list' %}" style="color: var(--color-text-secondary);">Fleet</a> &bull;
       <a href="{% url 'car_detail' car.id %}" style="color: var(--color-text-secondary);">{{ car.brand }} {{ car.model }}</a> &bull;
-      <span style="color: var(--color-primary);">Booking Request</span>
+      <span style="color: var(--color-primary-light);">Guest Checkout</span>
     </div>
 
     <!-- Title & Status Advisory Banner -->
     <div style="margin-bottom: 24px;">
-      <h1 style="font-size: 2rem; margin-bottom: 8px;">Booking Request Form</h1>
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Reserve {{ car.brand }} {{ car.model }}</h1>
       <p style="color: var(--color-text-secondary); font-size: 0.95rem;">
-        Fill out your details, review the rental policy, and submit your booking request to {{ BUSINESS_NAME }}.
+        Fast guest booking in 60 seconds — No account creation or password required. Offline payment upon vehicle pickup.
       </p>
     </div>
 
     <div class="notice-banner notice-warning" style="margin-bottom: 28px;">
       <svg class="notice-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
       <div>
-        <strong style="color: #FBBF24;">Important Note on Booking Confirmation:</strong> Submitting this request creates a <strong>PENDING</strong> booking. Your booking is <strong>NOT confirmed yet</strong>. The owner will review live availability and vehicle schedule before manually confirming.
+        <strong>Offline Payment at Pickup:</strong> Zero online prepayment required. Payment is collected offline via <strong>UPI or Cash</strong> during physical vehicle inspection and handover.
       </div>
     </div>
 
@@ -35,75 +35,68 @@
       <input type="hidden" name="car_id" value="{{ car.id }}">
 
       <!-- Section 1: Selected Vehicle Summary -->
-      <div class="card" style="margin-bottom: 24px; background-color: var(--color-surface-elevated); border: 1px solid rgba(0, 210, 255, 0.25);">
+      <div class="glass-card" style="margin-bottom: 24px; padding: 20px; border-radius: var(--radius-lg);">
         <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-          <div style="width: 120px; height: 80px; border-radius: var(--radius-md); overflow: hidden; background-color: var(--color-bg-alt); flex-shrink: 0;">
+          <div style="width: 130px; height: 85px; border-radius: var(--radius-md); overflow: hidden; background-color: var(--color-bg-alt); flex-shrink: 0;">
             <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.model }}" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div style="flex-grow: 1;">
-            <div class="car-brand">{{ car.brand }}</div>
-            <h3 style="font-size: 1.25rem;">{{ car.model }}</h3>
+            <span class="badge" style="background: rgba(37, 99, 235, 0.2); color: var(--color-primary-light); margin-bottom: 4px;">{{ car.vehicle_class }}</span>
+            <h3 style="font-size: 1.3rem; font-weight: 700;">{{ car.brand }} {{ car.model }}</h3>
             <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-top: 4px;">
-              {{ car.vehicle_class }} &bull; {{ car.transmission }} &bull; {{ car.fuel_type }} &bull; {{ car.seats }} Seats
+              {{ car.transmission }} · {{ car.fuel_type }} · {{ car.seats }} Seats · {{ car.included_km }} Free KM/day
             </div>
           </div>
           <div style="text-align: right;">
-            <div style="font-size: 1.4rem; font-weight: 800; color: var(--color-primary);">₹{{ car.price_per_day }}</div>
-            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">per day</div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary-light);">₹{{ car.price_per_day }}</div>
+            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">per day rate</div>
           </div>
         </div>
       </div>
 
-      <!-- Section 2: Customer Details -->
-      <div class="card" style="margin-bottom: 24px;">
-        <h3 style="margin-bottom: 18px; font-size: 1.15rem; color: var(--color-primary); display: flex; align-items: center; gap: 8px;">
+      <!-- Section 2: Guest Details -->
+      <div class="glass-card" style="margin-bottom: 24px; padding: 24px; border-radius: var(--radius-lg);">
+        <h3 style="margin-bottom: 18px; font-size: 1.15rem; color: var(--color-primary-light); display: flex; align-items: center; gap: 8px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          1. Customer Details
+          1. Guest Contact & Driver Details
         </h3>
 
         <div class="form-group">
           <label for="customerName" class="form-label form-label-required">Full Name</label>
-          <input type="text" id="customerName" name="customer_name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+          <input type="text" id="customerName" name="customer_name" class="form-input" placeholder="e.g. Rahul Sharma" required>
         </div>
 
-        <div class="grid grid-2">
+        <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
-            <label for="customerMobile" class="form-label form-label-required">Mobile Number</label>
-            <input type="tel" id="customerMobile" name="customer_mobile" class="form-control" placeholder="e.g. +91 9876543210" required>
-            <div class="form-helper">Primary phone number for voice calls.</div>
+            <label for="customerPhone" class="form-label form-label-required">Mobile / WhatsApp Number</label>
+            <input type="tel" id="customerPhone" name="customer_phone" class="form-input" placeholder="e.g. +91 9876543210" required>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">Used for booking verification and live voucher lookup.</div>
           </div>
 
           <div class="form-group">
-            <label for="customerWhatsapp" class="form-label form-label-required">WhatsApp Number</label>
-            <input type="tel" id="customerWhatsapp" name="customer_whatsapp" class="form-control" placeholder="e.g. +91 9876543210" required>
-            <div class="form-helper">
-              Your booking confirmation and summary may be sent to this WhatsApp number after the owner confirms your booking.
-            </div>
-            <div style="margin-top: 6px;">
-              <label class="form-checkbox-wrap" style="font-size: 0.8rem; color: var(--color-text-secondary);">
-                <input type="checkbox" id="sameAsMobile" class="form-checkbox">
-                <span>Same as mobile number</span>
-              </label>
-            </div>
+            <label for="drivingLicense" class="form-label">Driving License Number</label>
+            <input type="text" id="drivingLicense" name="driving_license_number" class="form-input" placeholder="e.g. DL-0420210012345">
+            <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">Original license must be shown upon pickup.</div>
           </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
           <label for="customerEmail" class="form-label">Email Address (Optional)</label>
-          <input type="email" id="customerEmail" name="customer_email" class="form-control" placeholder="e.g. rahul@example.com">
+          <input type="email" id="customerEmail" name="customer_email" class="form-input" placeholder="e.g. rahul@example.com">
+          <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">Digital voucher copy will be emailed if provided.</div>
         </div>
       </div>
 
       <!-- Section 3: Booking & Schedule Details -->
-      <div class="card" style="margin-bottom: 24px;">
-        <h3 style="margin-bottom: 18px; font-size: 1.15rem; color: var(--color-primary); display: flex; align-items: center; gap: 8px;">
+      <div class="glass-card" style="margin-bottom: 24px; padding: 24px; border-radius: var(--radius-lg);">
+        <h3 style="margin-bottom: 18px; font-size: 1.15rem; color: var(--color-primary-light); display: flex; align-items: center; gap: 8px;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           2. Rental Dates & Pickup Location
         </h3>
 
         <div class="form-group">
           <label for="pickupLocation" class="form-label form-label-required">Pickup Location</label>
-          <select id="pickupLocation" name="pickup_location" class="form-control" required>
+          <select id="pickupLocation" name="pickup_location" class="form-select" required>
             <option value="">Select Pickup Point</option>
             {% for loc in locations %}
               <option value="{{ loc.id }}">{{ loc.name }} — {{ loc.address }}</option>
@@ -111,63 +104,80 @@
           </select>
         </div>
 
-        <div class="grid grid-2">
+        <div class="grid grid-cols-2 gap-4">
           <div>
             <div class="form-group">
               <label for="pickupDate" class="form-label form-label-required">Pickup Date</label>
-              <input type="date" id="pickupDate" name="pickup_date" class="form-control" data-price-per-day="{{ car.price_per_day }}" required>
+              <input type="date" id="pickupDate" name="pickup_date" class="form-input" min="{{ today }}" value="{{ pickup_date_param }}" data-price-per-day="{{ car.price_per_day }}" data-deposit="{{ car.security_deposit }}" required>
             </div>
             <div class="form-group">
               <label for="pickupTime" class="form-label form-label-required">Pickup Time</label>
-              <input type="time" id="pickupTime" name="pickup_time" class="form-control" value="10:00" required>
+              <input type="time" id="pickupTime" name="pickup_time" class="form-input" value="10:00" required>
             </div>
           </div>
 
           <div>
             <div class="form-group">
               <label for="returnDate" class="form-label form-label-required">Return Date</label>
-              <input type="date" id="returnDate" name="return_date" class="form-control" required>
+              <input type="date" id="returnDate" name="return_date" class="form-input" min="{{ today }}" value="{{ return_date_param }}" required>
             </div>
             <div class="form-group">
               <label for="returnTime" class="form-label form-label-required">Return Time</label>
-              <input type="time" id="returnTime" name="return_time" class="form-control" value="10:00" required>
+              <input type="time" id="returnTime" name="return_time" class="form-input" value="10:00" required>
             </div>
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom: 0;">
-          <label for="customerMessage" class="form-label">Special Requests / Notes (Optional)</label>
-          <textarea id="customerMessage" name="customer_message" rows="3" class="form-control" placeholder="Any specific requirements or pickup questions..."></textarea>
+        <!-- Real-Time Pricing & Offline Payment Calculator Widget -->
+        <div id="priceCalculationBox" style="margin-top: 18px; padding: 18px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--color-border); border-radius: var(--radius-md);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <strong style="font-size: 0.95rem;">Estimated Rental & Offline Payment Summary</strong>
+            <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: var(--color-success); font-size: 0.75rem;">Pay At Pickup (UPI / Cash)</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.875rem;">
+            <span id="durationBreakdown">Duration: <strong>2 Days</strong> (₹{{ car.price_per_day }}/day)</span>
+            <span id="grossRentalTotal">₹{{ car.price_per_day|add:car.price_per_day }}</span>
+          </div>
+
+          <div id="discountRow" style="display: none; justify-content: space-between; margin-bottom: 6px; font-size: 0.875rem; color: var(--color-success);">
+            <span id="discountLabel">Duration Discount</span>
+            <span id="discountVal">-₹0</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.875rem; color: var(--color-text-secondary);">
+            <span>Refundable Security Deposit (Paid on pickup)</span>
+            <span>+₹{{ car.security_deposit }}</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; padding-top: 10px; margin-top: 8px; border-top: 1px solid var(--color-border); font-size: 1.15rem; font-weight: 800;">
+            <span>Total Payable on Vehicle Pickup:</span>
+            <span id="totalDueAtPickup" style="color: var(--color-primary-light);">₹--</span>
+          </div>
         </div>
       </div>
 
       <!-- Section 4: Mandatory Rental Responsibility Policy Card -->
-      <div class="policy-card" style="margin-bottom: 28px;">
-        <div class="policy-card-header justify-between">
+      <div class="glass-card" style="margin-bottom: 28px; padding: 24px; border-radius: var(--radius-lg); border: 1px solid rgba(37, 99, 235, 0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
           <div class="flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            <h3 style="font-size: 1.15rem; color: var(--color-text-primary);">Vehicle Care & Damage Policy</h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-light)" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <h3 style="font-size: 1.15rem; font-weight: 700;">Vehicle Care & Damage Policy</h3>
           </div>
-          <span class="policy-badge">Mandatory Acceptance</span>
+          <span class="badge" style="background: rgba(234, 179, 8, 0.2); color: var(--color-warning);">Mandatory Acceptance</span>
         </div>
 
-        <div class="policy-content-box">
-          <p style="margin-bottom: 8px;">
-            The renter is responsible for taking reasonable care of the vehicle throughout the rental period.
-          </p>
-          <ul>
-            <li>The vehicle must be returned in the agreed condition. Any new damage, accident-related damage or loss caused during the rental period may result in charges to the renter according to the agreed rental terms and applicable law.</li>
-            <li>The renter must inform <strong>{{ BUSINESS_NAME }}</strong> immediately if an accident, damage, breakdown or other incident occurs.</li>
-            <li>Any existing damage should be checked and documented at pickup before commencing the rental.</li>
+        <div style="background: rgba(0, 0, 0, 0.2); padding: 14px 18px; border-radius: var(--radius-md); font-size: 0.875rem; line-height: 1.6; margin-bottom: 16px; color: var(--color-text-secondary);">
+          <ul style="margin: 0; padding-left: 18px;">
+            <li>The vehicle must be returned in the agreed condition. Any new damages or losses incurred during rental are the renter's responsibility.</li>
+            <li>Mandatory physical verification & 360-degree video walkthrough before key handover.</li>
+            <li>Strict No-Smoking policy inside vehicles. Refundable deposit returned on vehicle check-in.</li>
           </ul>
-          <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 8px;">
-            By accepting this policy, the renter acknowledges these responsibilities. Policy acceptance does not guarantee vehicle availability until manual owner confirmation.
-          </p>
         </div>
 
-        <label class="form-checkbox-wrap" style="background-color: var(--color-bg); padding: 12px 14px; border-radius: var(--radius-md); border: 1px solid rgba(0, 210, 255, 0.3);">
+        <label class="form-checkbox-wrap" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
           <input type="checkbox" id="policyAcceptance" name="policy_accepted" class="form-checkbox" required>
-          <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-primary);">
+          <span style="font-size: 0.925rem; font-weight: 600; color: var(--color-text-main);">
             I have read and agree to the Vehicle Care & Damage Policy.
           </span>
         </label>
@@ -175,15 +185,79 @@
 
       <!-- Submit Action -->
       <div style="text-align: center;">
-        <button type="submit" id="submitBookingBtn" class="btn btn-primary btn-lg btn-block" style="padding: 16px; font-size: 1.1rem;" disabled>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          <span>Submit Booking Request</span>
+        <button type="submit" id="submitBookingBtn" class="btn btn-primary btn-block" style="padding: 16px; font-size: 1.1rem; font-weight: 700;">
+          Submit Booking Request (Pay Offline)
         </button>
-        <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 10px;">
-          Your request will be recorded as PENDING. Offline payment & deposit upon owner confirmation.
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 10px;">
+          Your request will be recorded as PENDING. Confirmation and voucher reference code will be generated instantly.
         </p>
       </div>
     </form>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const pDateInput = document.getElementById('pickupDate');
+  const rDateInput = document.getElementById('returnDate');
+  const dailyPrice = parseInt(pDateInput.getAttribute('data-price-per-day')) || 2500;
+  const deposit = parseInt(pDateInput.getAttribute('data-deposit')) || 3000;
+  
+  const durationText = document.getElementById('durationBreakdown');
+  const grossTotalText = document.getElementById('grossRentalTotal');
+  const discountRow = document.getElementById('discountRow');
+  const discountVal = document.getElementById('discountVal');
+  const totalDue = document.getElementById('totalDueAtPickup');
+
+  function calculateSummary() {
+    if (!pDateInput.value || !rDateInput.value) return;
+
+    const pDate = new Date(pDateInput.value);
+    const rDate = new Date(rDateInput.value);
+
+    // If return date before pickup date, adjust
+    if (rDate < pDate) {
+      rDateInput.value = pDateInput.value;
+    }
+
+    const diffTime = Math.abs(new Date(rDateInput.value) - new Date(pDateInput.value));
+    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+    const gross = diffDays * dailyPrice;
+    let discount = 0;
+    if (diffDays >= 14) {
+      discount = Math.floor(gross * 0.15);
+      discountRow.style.display = 'flex';
+      discountVal.textContent = `-₹${discount.toLocaleString()}`;
+    } else if (diffDays >= 7) {
+      discount = Math.floor(gross * 0.10);
+      discountRow.style.display = 'flex';
+      discountVal.textContent = `-₹${discount.toLocaleString()}`;
+    } else {
+      discountRow.style.display = 'none';
+    }
+
+    const net = Math.max(0, gross - discount);
+    const total = net + deposit;
+
+    durationText.innerHTML = `Duration: <strong>${diffDays} Day${diffDays > 1 ? 's' : ''}</strong> (₹${dailyPrice.toLocaleString()}/day)`;
+    grossTotalText.textContent = `₹${gross.toLocaleString()}`;
+    totalDue.textContent = `₹${total.toLocaleString()}`;
+  }
+
+  pDateInput.addEventListener('change', function() {
+    if (rDateInput.value < pDateInput.value) {
+      rDateInput.value = pDateInput.value;
+    }
+    rDateInput.min = pDateInput.value;
+    calculateSummary();
+  });
+
+  rDateInput.addEventListener('change', calculateSummary);
+
+  calculateSummary();
+});
+</script>
 {% endblock %}

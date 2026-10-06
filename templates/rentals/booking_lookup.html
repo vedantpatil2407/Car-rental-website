@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Track Booking — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width: 620px;">
+
+    <div style="text-align: center; margin-bottom: 28px;">
+      <span class="badge" style="background: rgba(37, 99, 235, 0.15); color: var(--color-primary-light); margin-bottom: 6px;">Guest Booking Lookup</span>
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Find Your Rental Booking</h1>
+      <p style="color: var(--color-text-secondary); font-size: 0.95rem;">
+        Enter your Booking Reference ID (e.g., <code>KTF-2026-ABCD</code>) and registered phone number to view live confirmation status, rental terms, and downloadable voucher.
+      </p>
+    </div>
+
+    <div class="glass-card" style="padding: 32px 28px; border-radius: var(--radius-lg); margin-bottom: 28px;">
+      <form method="POST" action="{% url 'booking_lookup' %}" class="grid gap-4">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label form-label-required" for="bookingRefInput">Booking Reference ID</label>
+          {{ form.booking_reference }}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label-required" for="customerPhoneInput">Registered Phone / WhatsApp Number</label>
+          {{ form.customer_phone }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="padding: 13px; font-weight: 600;">
+          Search Reservation
+        </button>
+      </form>
+    </div>
+
+    {% if searched and booking %}
+      <div class="glass-card" style="padding: 24px; border-radius: var(--radius-lg); border-left: 4px solid var(--color-primary-light);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-family: monospace; font-size: 1.15rem; font-weight: 700; color: var(--color-primary-light);">{{ booking.booking_ref }}</span>
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-top: 4px;">{{ booking.car.brand }} {{ booking.car.model }}</h3>
+          </div>
+          <div>
+            {% if booking.status == 'CONFIRMED' %}
+              <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: var(--color-success);">CONFIRMED</span>
+            {% elif booking.status == 'PENDING' %}
+              <span class="badge" style="background: rgba(234, 179, 8, 0.2); color: var(--color-warning);">PENDING REVIEW</span>
+            {% elif booking.status == 'CANCELLED' %}
+              <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: var(--color-danger);">CANCELLED</span>
+            {% else %}
+              <span class="badge">{{ booking.get_status_display }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 14px; line-height: 1.6;">
+          <div>👤 Renter: <strong>{{ booking.customer_name }}</strong></div>
+          <div>📞 Phone: <strong>{{ booking.customer_phone|default:booking.customer_mobile }}</strong></div>
+          <div>📅 Dates: <strong>{{ booking.pickup_date|date:"M d, Y" }} ({{ booking.pickup_time }}) → {{ booking.return_date|date:"M d, Y" }} ({{ booking.return_time }})</strong></div>
+          <div>📍 Pickup Point: <strong>{{ booking.pickup_location.name|default:"Main Terminal" }}</strong></div>
+          <div>💵 Payable on Pickup (Cash/UPI): <strong style="color: var(--color-primary-light);">₹{{ booking.payable_at_pickup }}</strong></div>
+        </div>
+
+        <div class="flex gap-2">
+          <a href="{% url 'booking_voucher' booking.booking_ref %}" class="btn btn-primary btn-sm">
+            View & Print Voucher
+          </a>
+          <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}?text=Hi%20{{ BUSINESS_NAME }}%2C%20inquiry%20regarding%20booking%20{{ booking.booking_ref }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm">
+            Chat on WhatsApp
+          </a>
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

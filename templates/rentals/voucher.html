@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Rental Voucher #{{ booking.booking_ref }} — {{ BUSINESS_NAME }}{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+  .site-header, .site-footer, .mobile-bottom-nav, .no-print {
+    display: none !important;
+  }
+  .voucher-card {
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+    padding: 20px !important;
+  }
+  .voucher-table td, .voucher-table th {
+    border-color: #e5e7eb !important;
+    color: #111827 !important;
+  }
+  .badge {
+    border: 1px solid #111827 !important;
+    color: #111827 !important;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width: 780px;">
+
+    <!-- Action Bar -->
+    <div class="no-print flex justify-between items-center" style="margin-bottom: 20px;">
+      <a href="{% url 'booking_lookup' %}?ref={{ booking.booking_ref }}&phone={{ booking.customer_phone|default:booking.customer_mobile }}" class="btn btn-ghost btn-sm">
+        ← Back to Booking Tracker
+      </a>
+      <div class="flex gap-2">
+        <button onclick="window.print();" class="btn btn-secondary btn-sm">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          <span>Print / Save PDF</span>
+        </button>
+        <a href="{{ wa_direct }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.895-.447-1.611-.664-2.64-2.316-2.721-2.424-.08-.108-.654-.87-.654-1.656 0-.786.413-1.172.56-1.332.146-.16.32-.2.427-.2.106 0 .213.002.307.006.098.005.23-.037.36.276.133.32.453 1.107.494 1.188.04.08.067.174.013.281-.053.107-.08.174-.16.267-.08.093-.17.207-.243.277-.08.08-.163.167-.07.327.094.16.417.688.895 1.114.614.548 1.133.718 1.293.799.16.08.254.067.347-.04.094-.107.4-.467.507-.627.107-.16.214-.134.36-.08.147.054.934.441 1.094.521.16.08.267.12.307.187.04.067.04.387-.104.792z"/>
+          </svg>
+          <span>WhatsApp Coordinator</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Voucher Card -->
+    <div class="glass-card voucher-card" style="padding: 36px; border-radius: var(--radius-lg); position: relative;">
+      
+      <!-- Top Voucher Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; border-bottom: 2px solid var(--color-border); padding-bottom: 20px; margin-bottom: 24px;">
+        <div>
+          <div class="brand-logo" style="margin-bottom: 6px;">
+            <div class="logo-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+                <circle cx="7" cy="17" r="2"></circle>
+                <path d="M9 17h6"></path>
+                <circle cx="17" cy="17" r="2"></circle>
+              </svg>
+            </div>
+            <span style="font-size: 1.25rem;">{{ BUSINESS_NAME }}</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--color-text-secondary);">
+            Official Self-Drive Digital Reservation Voucher
+          </div>
+        </div>
+
+        <div style="text-align: right;">
+          <div style="font-size: 0.8rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Reservation Ref</div>
+          <div style="font-family: monospace; font-size: 1.4rem; font-weight: 800; color: var(--color-primary-light);">{{ booking.booking_ref }}</div>
+          <div style="margin-top: 4px;">
+            {% if booking.status == 'CONFIRMED' %}
+              <span class="badge" style="background: rgba(34, 197, 94, 0.2); color: var(--color-success); font-size: 0.8rem;">CONFIRMED</span>
+            {% elif booking.status == 'PENDING' %}
+              <span class="badge" style="background: rgba(234, 179, 8, 0.2); color: var(--color-warning); font-size: 0.8rem;">PENDING REVIEW</span>
+            {% elif booking.status == 'CANCELLED' %}
+              <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: var(--color-danger); font-size: 0.8rem;">CANCELLED</span>
+            {% else %}
+              <span class="badge">{{ booking.get_status_display }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Offline Payment Callout Banner -->
+      <div class="notice-banner notice-warning" style="margin-bottom: 24px; padding: 12px 16px;">
+        <div style="font-weight: 700; font-size: 0.95rem; color: #FBBF24;">
+          💵 NO PREPAYMENT CHARGED — SETTLEMENT DUE AT VEHICLE PICKUP
+        </div>
+        <div style="font-size: 0.825rem; color: #FEF3C7; margin-top: 3px;">
+          Present this voucher along with your original Driving License and Aadhaar/Govt ID to the coordinator.
+        </div>
+      </div>
+
+      <!-- Section: Vehicle & Customer Info -->
+      <div class="grid grid-cols-2 gap-4" style="margin-bottom: 24px;">
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 18px;">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primary-light); margin-bottom: 12px;">
+            🚗 Vehicle Specifications
+          </h4>
+          <div style="font-size: 1.15rem; font-weight: 800; margin-bottom: 4px;">{{ car.brand }} {{ car.model }}</div>
+          <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 12px;">Category: {{ car.vehicle_class }}</div>
+          
+          <div style="font-size: 0.85rem; line-height: 1.7; color: var(--color-text-main);">
+            <div><strong>Transmission:</strong> {{ car.transmission }}</div>
+            <div><strong>Fuel Type:</strong> {{ car.fuel_type }}</div>
+            <div><strong>Included Distance:</strong> {{ booking.total_free_km }} KM ({{ car.included_km }} KM/day)</div>
+            <div><strong>Extra KM Rate:</strong> ₹{{ car.extra_km_rate }}/KM</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 18px;">
+          <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primary-light); margin-bottom: 12px;">
+            👤 Guest Details
+          </h4>
+          <div style="font-size: 1.15rem; font-weight: 800; margin-bottom: 4px;">{{ booking.customer_name }}</div>
+          <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 12px;">
+            Phone: {{ booking.customer_phone|default:booking.customer_mobile }}
+          </div>
+
+          <div style="font-size: 0.85rem; line-height: 1.7; color: var(--color-text-main);">
+            <div><strong>WhatsApp:</strong> {{ booking.customer_whatsapp|default:booking.customer_phone }}</div>
+            <div><strong>Email:</strong> {{ booking.customer_email|default:"Not Provided" }}</div>
+            <div><strong>Driving License:</strong> {{ booking.driving_license_number|default:"Verify at Pickup" }}</div>
+            <div><strong>Booking Date:</strong> {{ booking.created_at|date:"M d, Y H:i" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Table -->
+      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;">
+        <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primary-light); margin-bottom: 12px;">
+          📅 Rental Schedule & Location
+        </h4>
+        <div class="grid grid-cols-2 gap-3" style="font-size: 0.875rem;">
+          <div>
+            <div style="color: var(--color-text-secondary); font-size: 0.75rem;">PICKUP POINT & TIME</div>
+            <div style="font-weight: 700; margin-top: 2px;">{{ booking.pickup_location.name|default:"Main Terminal" }}</div>
+            <div style="font-size: 0.8rem; color: var(--color-text-muted);">{{ booking.pickup_location.address|default:"Airport Road Hub" }}</div>
+            <div style="color: var(--color-primary-light); font-weight: 600; margin-top: 4px;">
+              {{ booking.pickup_date|date:"D, M d, Y" }} at {{ booking.pickup_time }}
+            </div>
+          </div>
+
+          <div>
+            <div style="color: var(--color-text-secondary); font-size: 0.75rem;">RETURN SCHEDULE</div>
+            <div style="font-weight: 700; margin-top: 2px;">{{ booking.pickup_location.name|default:"Main Terminal" }}</div>
+            <div style="font-size: 0.8rem; color: var(--color-text-muted);">Same as pickup location</div>
+            <div style="color: var(--color-primary-light); font-weight: 600; margin-top: 4px;">
+              {{ booking.return_date|date:"D, M d, Y" }} at {{ booking.return_time }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Breakdown Table -->
+      <div style="margin-bottom: 24px;">
+        <h4 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-primary-light); margin-bottom: 12px;">
+          💰 Offline Payment Breakdown
+        </h4>
+        <table class="voucher-table" style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <td style="padding: 10px 0; color: var(--color-text-secondary);">Base Rental Fee ({{ booking.total_days }} day{{ booking.total_days|pluralize }} &times; ₹{{ car.price_per_day }})</td>
+              <td style="padding: 10px 0; text-align: right; font-weight: 600;">₹{{ booking.estimated_amount }}</td>
+            </tr>
+            {% if booking.discount_amount > 0 %}
+            <tr style="border-bottom: 1px solid var(--color-border); color: var(--color-success);">
+              <td style="padding: 10px 0;">Duration Discount Applied</td>
+              <td style="padding: 10px 0; text-align: right; font-weight: 600;">-₹{{ booking.discount_amount }}</td>
+            </tr>
+            {% endif %}
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <td style="padding: 10px 0; color: var(--color-text-secondary);">Net Rental Amount</td>
+              <td style="padding: 10px 0; text-align: right; font-weight: 700;">₹{{ booking.net_rental_amount }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <td style="padding: 10px 0; color: var(--color-text-secondary);">Refundable Security Deposit (Returned on vehicle check-in)</td>
+              <td style="padding: 10px 0; text-align: right; font-weight: 600;">+₹{{ booking.security_deposit }}</td>
+            </tr>
+            <tr style="border-top: 2px solid var(--color-border); font-size: 1.15rem;">
+              <td style="padding: 14px 0; font-weight: 800;">TOTAL DUE AT PICKUP (Cash / UPI):</td>
+              <td style="padding: 14px 0; text-align: right; font-weight: 800; color: var(--color-primary-light);">
+                ₹{{ booking.payable_at_pickup }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Cancellation Action for Guest -->
+      {% if booking.status in 'PENDING,CONFIRMED' %}
+      <div class="no-print" style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--color-border); text-align: right;">
+        <form method="POST" action="{% url 'cancel_booking' booking.booking_ref %}" onsubmit="return confirm('Are you sure you want to cancel this booking? No cancellation fee applies.');" style="display: inline;">
+          {% csrf_token %}
+          <input type="hidden" name="reason" value="Cancelled by guest via voucher page">
+          <button type="submit" class="btn btn-ghost btn-sm" style="color: var(--color-danger);">
+            Cancel Reservation
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+{% endblock %}

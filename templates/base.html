@@ -5,13 +5,99 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{ BUSINESS_NAME }} — Self-Drive Car Rental{% endblock %}</title>
-  <meta name="description" content="{% block meta_description %}Premium & reliable self-drive car rentals with Keys to your freedom. Simple booking requests, transparent terms, and direct local owner support.{% endblock %}">
+  <meta name="description" content="{% block meta_description %}Premium & reliable self-drive car rentals with Keys to your freedom. Simple guest booking, transparent terms, and direct local owner support.{% endblock %}">
   
   <!-- Favicon / Theme -->
   <meta name="theme-color" content="#090D16">
   
   <!-- CSS Design System -->
   <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  
+  <!-- High-Priority Universal Form & Input Theme Styling -->
+  <style>
+    /* Universal Form Inputs and Selects styling */
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"],
+    input[type="password"],
+    input[type="number"],
+    input[type="search"],
+    select,
+    textarea,
+    .form-input,
+    .form-select,
+    .form-control {
+      background-color: #131B2C !important;
+      background: #131B2C !important;
+      color: #F8FAFC !important;
+      -webkit-text-fill-color: #F8FAFC !important;
+      border: 1px solid rgba(255, 255, 255, 0.18) !important;
+      border-radius: 10px !important;
+      padding: 12px 14px !important;
+      font-size: 0.95rem !important;
+      font-family: inherit !important;
+      width: 100% !important;
+      color-scheme: dark !important;
+      outline: none !important;
+      box-sizing: border-box !important;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    input[type="email"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    input[type="password"]:focus,
+    input[type="number"]:focus,
+    input[type="search"]:focus,
+    select:focus,
+    textarea:focus,
+    .form-input:focus,
+    .form-select:focus,
+    .form-control:focus {
+      border-color: #00D2FF !important;
+      box-shadow: 0 0 0 3px rgba(0, 210, 255, 0.25) !important;
+      background-color: #18233A !important;
+      background: #18233A !important;
+      color: #FFFFFF !important;
+      -webkit-text-fill-color: #FFFFFF !important;
+    }
+
+    input::placeholder,
+    textarea::placeholder,
+    .form-input::placeholder,
+    .form-control::placeholder {
+      color: #64748B !important;
+      -webkit-text-fill-color: #64748B !important;
+      opacity: 0.9 !important;
+    }
+
+    select option {
+      background-color: #0D1322 !important;
+      color: #F8FAFC !important;
+      padding: 10px !important;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.85) sepia(100%) saturate(300%) hue-rotate(165deg) !important;
+      cursor: pointer !important;
+      opacity: 0.9 !important;
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active,
+    select:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #131B2C inset !important;
+      -webkit-text-fill-color: #F8FAFC !important;
+      transition: background-color 5000s ease-in-out 0s !important;
+    }
+  </style>
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -37,7 +123,7 @@
         <li><a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a></li>
         <li><a href="{% url 'cars_list' %}" class="nav-link {% if '/cars' in request.path %}active{% endif %}">Our Fleet</a></li>
         <li><a href="{% url 'rental_policy' %}" class="nav-link {% if '/rental-policy' in request.path %}active{% endif %}">Rental Policy</a></li>
-        <li><a href="{% url 'about' %}" class="nav-link {% if '/about' in request.path %}active{% endif %}">About</a></li>
+        <li><a href="{% url 'booking_lookup' %}" class="nav-link {% if '/booking/lookup' in request.path %}active{% endif %}">Track Booking</a></li>
         <li><a href="{% url 'contact' %}" class="nav-link {% if '/contact' in request.path %}active{% endif %}">Contact</a></li>
       </ul>
 
@@ -48,15 +134,23 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.634.072-1.895-.447-1.611-.664-2.64-2.316-2.721-2.424-.08-.108-.654-.87-.654-1.656 0-.786.413-1.172.56-1.332.146-.16.32-.2.427-.2.106 0 .213.002.307.006.098.005.23-.037.36.276.133.32.453 1.107.494 1.188.04.08.067.174.013.281-.053.107-.08.174-.16.267-.08.093-.17.207-.243.277-.08.08-.163.167-.07.327.094.16.417.688.895 1.114.614.548 1.133.718 1.293.799.16.08.254.067.347-.04.094-.107.4-.467.507-.627.107-.16.214-.134.36-.08.147.054.934.441 1.094.521.16.08.267.12.307.187.04.067.04.387-.104.792z"/>
           </svg>
-          <span>WhatsApp</span>
+          <span class="desktop-only">WhatsApp</span>
         </a>
 
-        <!-- Call Owner -->
-        <a href="tel:{{ BUSINESS_PHONE }}" class="btn btn-secondary btn-sm" title="Call Owner">
+        <!-- Direct Track Booking Action (Replaces customer login/signup) -->
+        <a href="{% url 'booking_lookup' %}" class="btn btn-primary btn-sm" title="Track Booking Status">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
+          <span>Track Booking</span>
         </a>
+
+        {% if user.is_staff %}
+          <a href="{% url 'admin_shell_preview' %}" class="btn btn-secondary btn-sm desktop-only" style="border-color: var(--color-warning); color: var(--color-warning);" title="Owner Dashboard">
+            Owner Shell
+          </a>
+        {% endif %}
 
         <!-- Mobile Drawer Toggle -->
         <button id="mobileToggle" class="mobile-toggle" aria-label="Toggle Navigation Menu">
@@ -73,9 +167,9 @@
     <div id="mobileDrawer" class="mobile-drawer">
       <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
       <a href="{% url 'cars_list' %}" class="nav-link {% if '/cars' in request.path %}active{% endif %}">Our Fleet</a>
+      <a href="{% url 'booking_lookup' %}" class="nav-link {% if '/booking/lookup' in request.path %}active{% endif %}" style="color: var(--color-primary-light); font-weight: 600;">Track My Booking</a>
       <a href="{% url 'rental_policy' %}" class="nav-link {% if '/rental-policy' in request.path %}active{% endif %}">Rental Policy & Vehicle Care</a>
       <a href="{% url 'rental_rules' %}" class="nav-link {% if '/rental-rules' in request.path %}active{% endif %}">Rental Rules</a>
-      <a href="{% url 'about' %}" class="nav-link {% if '/about' in request.path %}active{% endif %}">About Us</a>
       <a href="{% url 'contact' %}" class="nav-link {% if '/contact' in request.path %}active{% endif %}">Contact & Pickup Locations</a>
       <a href="{% url 'admin_shell_preview' %}" class="nav-link" style="color: var(--color-warning);">Owner Admin Portal</a>
     </div>
@@ -115,7 +209,7 @@
             <span>{{ BUSINESS_NAME }}</span>
           </div>
           <p style="color: var(--color-text-secondary); font-size: 0.875rem; line-height: 1.6; margin-bottom: 18px;">
-            Quality self-drive car rentals with direct owner verification, transparent rental terms, and dedicated WhatsApp support.
+            Instant guest self-drive car rentals with zero upfront payment, verified vehicles, transparent rental terms, and offline settlement upon pickup.
           </p>
           <div class="flex gap-2">
             <a href="https://wa.me/{{ BUSINESS_WHATSAPP }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm">WhatsApp Owner</a>
@@ -129,6 +223,7 @@
           <ul class="footer-links">
             <li><a href="{% url 'home' %}">Home</a></li>
             <li><a href="{% url 'cars_list' %}">Browse Cars</a></li>
+            <li><a href="{% url 'booking_lookup' %}">Track Reservation</a></li>
             <li><a href="{% url 'about' %}">About Our Fleet</a></li>
             <li><a href="{% url 'contact' %}">Pickup Points</a></li>
           </ul>
@@ -168,13 +263,13 @@
           &copy; 2026 <strong>{{ BUSINESS_NAME }}</strong>. All rights reserved.
         </div>
         <div>
-          Owner-Controlled Rental Management System &bull; Offline Settlement
+          Guest Self-Drive Car Rental &bull; Offline Payment at Pickup
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- Mobile Bottom Navigation Bar (Screenshot Style) -->
+  <!-- Mobile Bottom Navigation Bar -->
   <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
     <a href="{% url 'home' %}" class="bottom-nav-item {% if request.path == '/' %}active{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -192,6 +287,14 @@
         <circle cx="17" cy="17" r="2"></circle>
       </svg>
       <span>Cars</span>
+    </a>
+
+    <a href="{% url 'booking_lookup' %}" class="bottom-nav-item {% if '/booking/lookup' in request.path %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <span>Track</span>
     </a>
 
     <a href="{% url 'rental_policy' %}" class="bottom-nav-item {% if '/rental-policy' in request.path %}active{% endif %}">

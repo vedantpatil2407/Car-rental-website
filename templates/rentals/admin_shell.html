@@ -8,38 +8,49 @@
 <div class="grid grid-4" style="gap: 16px; margin-bottom: 28px;">
   <div class="admin-stat-card" style="border: 1px solid rgba(245, 158, 11, 0.4);">
     <div class="admin-stat-label" style="color: #FBBF24;">Pending Requests</div>
-    <div class="admin-stat-value" style="color: #FBBF24;">3</div>
+    <div class="admin-stat-value" style="color: #FBBF24;">{{ pending_count }}</div>
     <div style="font-size: 0.75rem; color: var(--color-text-muted);">Requires owner availability review</div>
   </div>
 
   <div class="admin-stat-card" style="border: 1px solid rgba(16, 185, 129, 0.35);">
     <div class="admin-stat-label" style="color: #34D399;">Confirmed Bookings</div>
-    <div class="admin-stat-value" style="color: #34D399;">8</div>
-    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Inventory blocked</div>
+    <div class="admin-stat-value" style="color: #34D399;">{{ confirmed_count }}</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Inventory locked & scheduled</div>
   </div>
 
   <div class="admin-stat-card" style="border: 1px solid rgba(0, 210, 255, 0.35);">
-    <div class="admin-stat-label" style="color: var(--color-primary);">Available Fleet</div>
-    <div class="admin-stat-value" style="color: var(--color-primary);">12 / 15</div>
-    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Active vehicles</div>
+    <div class="admin-stat-label" style="color: var(--color-primary);">Active Vehicles</div>
+    <div class="admin-stat-value" style="color: var(--color-primary);">{{ total_cars_count }}</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Fleet vehicles in catalog</div>
   </div>
 
   <div class="admin-stat-card" style="border: 1px solid rgba(234, 88, 12, 0.35);">
-    <div class="admin-stat-label" style="color: #FB923C;">WhatsApp Confirmations</div>
-    <div class="admin-stat-value" style="color: #FB923C;">2 Pending</div>
-    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Manual WhatsApp send queue</div>
+    <div class="admin-stat-label" style="color: #FB923C;">WhatsApp Pending</div>
+    <div class="admin-stat-value" style="color: #FB923C;">{{ pending_wa_count }}</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Confirmed bookings awaiting WA</div>
   </div>
 </div>
 
-<!-- Recent Booking Requests Table -->
+<!-- Filter Bar -->
+<div class="flex items-center justify-between" style="margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+  <div class="flex gap-2" style="flex-wrap: wrap;">
+    <a href="{% url 'admin_shell_preview' %}" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-secondary{% endif %}">All Bookings</a>
+    <a href="{% url 'admin_shell_preview' %}?status=PENDING" class="btn btn-sm {% if status_filter == 'PENDING' %}btn-primary{% else %}btn-secondary{% endif %}">Pending ({{ pending_count }})</a>
+    <a href="{% url 'admin_shell_preview' %}?status=CONFIRMED" class="btn btn-sm {% if status_filter == 'CONFIRMED' %}btn-primary{% else %}btn-secondary{% endif %}">Confirmed ({{ confirmed_count }})</a>
+    <a href="{% url 'admin_shell_preview' %}?status=REJECTED" class="btn btn-sm {% if status_filter == 'REJECTED' %}btn-primary{% else %}btn-secondary{% endif %}">Rejected</a>
+  </div>
+  <a href="/admin/rentals/bookingrequest/" class="btn btn-secondary btn-sm" target="_blank">Open Full Django Admin ↗</a>
+</div>
+
+<!-- Booking Requests Table -->
 <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
   <div style="padding: 16px 20px; background-color: var(--color-surface-elevated); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
     <div>
-      <h3 style="font-size: 1.15rem; color: var(--color-text-primary);">Recent Booking Requests & Verification Queue</h3>
-      <p style="font-size: 0.8rem; color: var(--color-text-muted);">Review live availability and manually confirm or send customer WhatsApp confirmation</p>
+      <h3 style="font-size: 1.15rem; color: var(--color-text-primary);">Live Booking Requests & WhatsApp Action Queue</h3>
+      <p style="font-size: 0.8rem; color: var(--color-text-muted);">Confirm customer bookings, view rental amounts, and dispatch instant WhatsApp messages</p>
     </div>
     <div class="flex gap-2">
-      <span class="badge badge-cyan">Owner Control</span>
+      <span class="badge badge-cyan">Real-Time Database</span>
     </div>
   </div>
 
@@ -51,64 +62,103 @@
           <th>Customer</th>
           <th>Customer WhatsApp</th>
           <th>Vehicle</th>
-          <th>Dates</th>
-          <th>Policy Status</th>
+          <th>Dates & Duration</th>
+          <th>Est. Amount</th>
           <th>Status</th>
           <th>WhatsApp Delivery</th>
-          <th>Actions</th>
+          <th>Quick Actions</th>
         </tr>
       </thead>
       <tbody>
+        {% for b in bookings %}
         <tr>
-          <td><strong style="color: var(--color-primary);">KTF-2026-0001</strong></td>
-          <td>Rahul Sharma</td>
-          <td><span style="color: var(--color-whatsapp);">+91 9876543210</span></td>
-          <td>Hyundai Creta</td>
-          <td>Oct 05 - Oct 08</td>
-          <td><span class="badge badge-confirmed">v1.0 Accepted</span></td>
-          <td><span class="badge badge-pending">PENDING</span></td>
-          <td><span class="badge badge-delivery-ready">Ready to Send</span></td>
+          <td><strong style="color: var(--color-primary); font-family: monospace;">{{ b.booking_ref }}</strong></td>
           <td>
-            <div class="flex gap-1">
-              <button class="btn btn-primary btn-sm" title="Confirm Booking">Confirm</button>
-              <button class="btn btn-whatsapp btn-sm" title="Confirm & Send WhatsApp">Confirm & WA</button>
+            <div style="font-weight: 600; color: var(--color-text-primary);">
+              {{ b.customer_name }}
+              {% if b.user %}
+                <span class="badge" style="font-size: 0.65rem; background: rgba(37, 99, 235, 0.2); color: var(--color-primary-light);">User</span>
+              {% endif %}
+            </div>
+            {% if b.pickup_location %}<div style="font-size: 0.75rem; color: var(--color-text-muted);">📍 {{ b.pickup_location.name }}</div>{% endif %}
+          </td>
+          <td>
+            <a href="{{ b.wa_link }}" target="_blank" style="color: #25D366; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;">
+              <span>💬</span> {{ b.customer_whatsapp }}
+            </a>
+            {% if b.customer_email %}
+              <div style="font-size: 0.725rem; color: var(--color-text-muted);">✉️ {{ b.customer_email }}</div>
+            {% endif %}
+          </td>
+          <td>
+            <div style="font-weight: 600;">{{ b.car.brand }} {{ b.car.model }}</div>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted);">{{ b.car.vehicle_class }} • {{ b.car.transmission }}</div>
+          </td>
+          <td>
+            <div style="font-size: 0.85rem; color: var(--color-text-primary);">{{ b.pickup_date|date:"M d" }} → {{ b.return_date|date:"M d" }}</div>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted);">{{ b.total_days }} day(s) ({{ b.pickup_time }})</div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--color-accent);">₹{{ b.payable_at_pickup|default:b.estimated_amount }}</div>
+            <div style="font-size: 0.7rem; color: var(--color-text-muted);">
+              {% if b.discount_amount > 0 %}<span style="color: var(--color-success);">-₹{{ b.discount_amount }} disc</span> &bull; {% endif %}
+              +₹{{ b.security_deposit }} dep
             </div>
           </td>
-        </tr>
+          <td>
+            {% if b.status == 'PENDING' %}
+              <span class="badge badge-pending">PENDING</span>
+            {% elif b.status == 'CONFIRMED' %}
+              <span class="badge badge-confirmed">CONFIRMED</span>
+            {% elif b.status == 'REJECTED' %}
+              <span class="badge badge-danger">REJECTED</span>
+            {% elif b.status == 'CANCELLED' %}
+              <span class="badge badge-danger">CANCELLED</span>
+            {% else %}
+              <span class="badge badge-cyan">{{ b.get_status_display }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if b.whatsapp_status == 'SENT' %}
+              <span class="badge badge-completed">✓ Sent</span>
+            {% else %}
+              <span class="badge badge-delivery-ready">Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="flex gap-1" style="flex-wrap: wrap;">
+              {% if b.status == 'PENDING' %}
+                <form method="POST" style="display: inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="booking_id" value="{{ b.id }}">
+                  <input type="hidden" name="action" value="confirm">
+                  <button type="submit" class="btn btn-primary btn-sm" title="Confirm Booking">Confirm</button>
+                </form>
+                <form method="POST" style="display: inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="booking_id" value="{{ b.id }}">
+                  <input type="hidden" name="action" value="reject">
+                  <button type="submit" class="btn btn-danger btn-sm" title="Reject Request">Reject</button>
+                </form>
+              {% endif %}
 
-        <tr>
-          <td><strong style="color: var(--color-primary);">KTF-2026-0002</strong></td>
-          <td>Pooja Patel</td>
-          <td><span style="color: var(--color-whatsapp);">+91 9811223344</span></td>
-          <td>Maruti Swift</td>
-          <td>Oct 06 - Oct 07</td>
-          <td><span class="badge badge-confirmed">v1.0 Accepted</span></td>
-          <td><span class="badge badge-pending">PENDING</span></td>
-          <td><span class="badge badge-delivery-manual">Manual Send Req</span></td>
-          <td>
-            <div class="flex gap-1">
-              <button class="btn btn-primary btn-sm">Confirm</button>
-              <button class="btn btn-danger btn-sm">Reject</button>
-            </div>
-          </td>
-        </tr>
+              <a href="{% url 'booking_voucher' b.booking_ref %}" target="_blank" class="btn btn-secondary btn-sm" title="Open digital voucher">
+                Voucher ↗
+              </a>
 
-        <tr>
-          <td><strong style="color: var(--color-primary);">KTF-2026-0003</strong></td>
-          <td>Amit Verma</td>
-          <td><span style="color: var(--color-whatsapp);">+91 9765432109</span></td>
-          <td>Mahindra Thar</td>
-          <td>Oct 02 - Oct 04</td>
-          <td><span class="badge badge-confirmed">v1.0 Accepted</span></td>
-          <td><span class="badge badge-confirmed">CONFIRMED</span></td>
-          <td><span class="badge badge-completed">PDF Generated</span></td>
-          <td>
-            <div class="flex gap-1">
-              <button class="btn btn-secondary btn-sm">Download PDF</button>
-              <button class="btn btn-whatsapp btn-sm">Open WhatsApp</button>
+              <a href="{{ b.wa_link }}" target="_blank" class="btn btn-whatsapp btn-sm" title="Open WhatsApp chat with prefilled details">
+                WA ↗
+              </a>
             </div>
           </td>
         </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" style="text-align: center; padding: 32px; color: var(--color-text-muted);">
+            No booking requests found for this filter.
+          </td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
