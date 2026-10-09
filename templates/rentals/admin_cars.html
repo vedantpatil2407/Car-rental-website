@@ -1,0 +1,180 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block page_title %}Fleet & Inventory Management{% endblock %}
+
+{% block admin_content %}
+<!-- Fleet Stats Grid -->
+<div class="grid grid-4" style="gap: 16px; margin-bottom: 28px;">
+  <div class="admin-stat-card" style="border: 1px solid rgba(0, 210, 255, 0.35);">
+    <div class="admin-stat-label" style="color: var(--color-primary);">Total Vehicles</div>
+    <div class="admin-stat-value" style="color: var(--color-primary);">{{ total_cars }}</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Registered in fleet database</div>
+  </div>
+
+  <div class="admin-stat-card" style="border: 1px solid rgba(16, 185, 129, 0.35);">
+    <div class="admin-stat-label" style="color: #34D399;">Active (Public)</div>
+    <div class="admin-stat-value" style="color: #34D399;">{{ active_cars }}</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Visible for guest bookings</div>
+  </div>
+
+  <div class="admin-stat-card" style="border: 1px solid rgba(245, 158, 11, 0.35);">
+    <div class="admin-stat-label" style="color: #FBBF24;">Inactive / Maintenance</div>
+    <div class="admin-stat-value" style="color: #FBBF24;">{{ inactive_cars }}</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Hidden from customer view</div>
+  </div>
+
+  <div class="admin-stat-card" style="border: 1px solid rgba(168, 85, 247, 0.35);">
+    <div class="admin-stat-label" style="color: #C084FC;">Featured on Home</div>
+    <div class="admin-stat-value" style="color: #C084FC;">{{ featured_cars }}</div>
+    <div style="font-size: 0.75rem; color: var(--color-text-muted);">Promoted in spotlight banner</div>
+  </div>
+</div>
+
+<!-- Header / Action Bar -->
+<div class="flex items-center justify-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+  <div>
+    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 2px;">
+      Owner Fleet Operations
+    </h3>
+    <p style="font-size: 0.825rem; color: var(--color-text-muted); margin: 0;">
+      Toggle availability, review rental rates, and access full Django Admin CRUD controls.
+    </p>
+  </div>
+  <div class="flex gap-2" style="flex-wrap: wrap;">
+    <a href="{% url 'admin_car_add' %}" class="btn btn-primary btn-sm">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <span>+ Add New Vehicle</span>
+    </a>
+    <a href="/admin/rentals/car/" class="btn btn-secondary btn-sm" target="_blank" title="Open classic Django admin backend">
+      <span>Django Admin ↗</span>
+    </a>
+  </div>
+</div>
+
+<!-- Cars Table -->
+<div class="card" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
+  <div style="padding: 16px 20px; background-color: var(--color-surface-elevated); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+    <div style="font-weight: 700; color: var(--color-text-primary); font-size: 0.95rem;">
+      Fleet Inventory List ({{ total_cars }} Vehicles)
+    </div>
+    <div style="font-size: 0.8rem; color: var(--color-text-muted);">
+      Controlled via Owner Portal & Django Admin
+    </div>
+  </div>
+
+  <div style="overflow-x: auto;">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th style="width: 80px;">Image</th>
+          <th>Vehicle</th>
+          <th>Specifications</th>
+          <th>Rates & Deposits</th>
+          <th>Ratings</th>
+          <th>Visibility</th>
+          <th>Featured</th>
+          <th>Administrative Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for car in cars %}
+        <tr>
+          <td>
+            <div style="width: 70px; height: 48px; border-radius: 6px; overflow: hidden; background: var(--color-bg-alt); border: 1px solid var(--color-border);">
+              <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.model }}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--color-text-primary); font-size: 0.95rem;">
+              {{ car.brand }} {{ car.model }}
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+              <span class="badge" style="background: rgba(0, 210, 255, 0.12); color: var(--color-primary-light); font-size: 0.7rem; padding: 1px 6px;">
+                {{ car.vehicle_class }}
+              </span>
+              {% if car.badge %}
+                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--color-warning); font-size: 0.7rem; padding: 1px 6px;">
+                  {{ car.badge }}
+                </span>
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            <div style="font-size: 0.825rem; color: var(--color-text-secondary);">
+              {{ car.seats }} Seats &bull; {{ car.transmission }} &bull; {{ car.fuel_type }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 2px;">
+              {{ car.ac_status }} &bull; {{ car.included_km }} km/day incl.
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--color-primary-light); font-size: 0.95rem;">
+              ₹{{ car.price_per_day }} <span style="font-size: 0.75rem; color: var(--color-text-muted);">/ day</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 2px;">
+              ₹{{ car.security_deposit }} deposit &bull; ₹{{ car.extra_km_rate }}/km
+            </div>
+          </td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span style="color: var(--color-warning); font-size: 0.9rem;">★ {{ car.average_rating }}</span>
+              <span style="font-size: 0.75rem; color: var(--color-text-muted);">({{ car.review_count }})</span>
+            </div>
+          </td>
+          <td>
+            <form method="POST" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="car_id" value="{{ car.id }}">
+              <input type="hidden" name="action" value="toggle_active">
+              {% if car.is_active %}
+                <button type="submit" class="badge badge-confirmed" style="cursor: pointer; border: none;" title="Click to hide from customer catalog">
+                  ✓ Active (Visible)
+                </button>
+              {% else %}
+                <button type="submit" class="badge badge-danger" style="cursor: pointer; border: none;" title="Click to make visible to renters">
+                  ✕ Inactive (Hidden)
+                </button>
+              {% endif %}
+            </form>
+          </td>
+          <td>
+            <form method="POST" style="display: inline;">
+              {% csrf_token %}
+              <input type="hidden" name="car_id" value="{{ car.id }}">
+              <input type="hidden" name="action" value="toggle_featured">
+              {% if car.is_featured %}
+                <button type="submit" class="badge" style="background: rgba(168, 85, 247, 0.2); color: #C084FC; cursor: pointer; border: 1px solid rgba(168, 85, 247, 0.4);" title="Click to remove from homepage featured">
+                  ★ Featured
+                </button>
+              {% else %}
+                <button type="submit" class="badge" style="background: rgba(255, 255, 255, 0.06); color: var(--color-text-muted); cursor: pointer; border: 1px solid var(--color-border);" title="Click to feature on homepage">
+                  Standard
+                </button>
+              {% endif %}
+            </form>
+          </td>
+          <td>
+            <div class="flex gap-1" style="flex-wrap: wrap;">
+              <a href="{% url 'admin_car_edit' car.id %}" class="btn btn-primary btn-sm" title="Edit vehicle specifications, pricing, and photos">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                <span>Edit</span>
+              </a>
+              <a href="{% url 'car_detail' car.id %}" class="btn btn-secondary btn-sm" target="_blank" title="Preview public car detail page on customer portal">
+                <span>Preview ↗</span>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 36px; color: var(--color-text-muted);">
+            No vehicles found in fleet. Click <a href="{% url 'admin_car_add' %}" style="color: var(--color-primary); font-weight: 600;">+ Add New Vehicle</a> above to register your first car.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

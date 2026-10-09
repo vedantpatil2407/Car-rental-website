@@ -1,0 +1,418 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if is_edit %}Edit {{ car.brand }} {{ car.model }}{% else %}Add New Vehicle to Fleet{% endif %} &bull; Owner Portal
+{% endblock %}
+
+{% block page_title %}
+  {% if is_edit %}Edit Vehicle: {{ car.brand }} {{ car.model }}{% else %}Add New Vehicle to Fleet{% endif %}
+{% endblock %}
+
+{% block admin_content %}
+<!-- Navigation & Quick Links -->
+<div class="flex items-center justify-between" style="margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+  <div class="flex items-center gap-2">
+    <a href="{% url 'admin_manage_cars' %}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      <span>Back to Fleet List</span>
+    </a>
+    <span style="color: var(--color-text-muted); font-size: 0.85rem;">/</span>
+    <span style="color: var(--color-text-secondary); font-size: 0.85rem; font-weight: 600;">
+      {% if is_edit %}Modify Specs & Pricing{% else %}Register New Car{% endif %}
+    </span>
+  </div>
+
+  {% if is_edit and car %}
+  <div class="flex items-center gap-2">
+    <a href="{% url 'car_detail' car.id %}" target="_blank" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 6px;" title="See how renters view this car">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+      <span>Live Customer Page ↗</span>
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+{% if form.errors %}
+<div class="card" style="background-color: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); padding: 16px 20px; margin-bottom: 24px; border-radius: var(--radius-md);">
+  <div style="font-weight: 700; color: #F87171; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    <span>Please check and correct the following errors:</span>
+  </div>
+  <ul style="margin: 0; padding-left: 20px; color: var(--color-text-secondary); font-size: 0.875rem;">
+    {% for field in form %}
+      {% for error in field.errors %}
+        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+      {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<form method="POST" id="carManageForm">
+  {% csrf_token %}
+
+  <div class="grid grid-3" style="grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+    
+    <!-- LEFT COLUMN: Form Inputs -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      
+      <!-- 1. Vehicle Identity -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border);">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(0, 210, 255, 0.15); display: flex; align-items: center; justify-content: center; color: var(--color-primary);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+          </div>
+          <div>
+            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Vehicle Identification & Category</h4>
+            <div style="font-size: 0.775rem; color: var(--color-text-muted);">Brand, model name, segment, and marketing label</div>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: 16px;">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.brand.id_for_label }}">Manufacturer / Brand</label>
+            {{ form.brand }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">e.g. Mahindra, Hyundai, Toyota, Tata, Maruti</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.model.id_for_label }}">Model Name / Variant</label>
+            {{ form.model }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">e.g. Thar 4x4 Hard Top, Creta SX (O), Innova Crysta</span>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: 16px; margin-top: 8px;">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.vehicle_class.id_for_label }}">Vehicle Category / Class</label>
+            {{ form.vehicle_class }}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.badge.id_for_label }}">Promotional Badge (Optional)</label>
+            {{ form.badge }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">Highlighted on fleet card (e.g. "Popular Choice", "7-Seater", "Luxury")</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Rental Pricing & Security Terms -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border);">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(52, 211, 153, 0.15); display: flex; align-items: center; justify-content: center; color: #34D399;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <div>
+            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Rental Pricing, Deposits & Kilometer Terms</h4>
+            <div style="font-size: 0.775rem; color: var(--color-text-muted);">Transparent rates payable offline at vehicle pickup</div>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: 16px;">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.price_per_day.id_for_label }}">Daily Rental Rate (₹ / Day)</label>
+            {{ form.price_per_day }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">Standard base rate per 24 hours</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.security_deposit.id_for_label }}">Refundable Deposit (₹)</label>
+            {{ form.security_deposit }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">Refunded instantly upon safe car return</span>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: 16px; margin-top: 8px;">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.included_km.id_for_label }}">Included KM Allowance (Per Day)</label>
+            {{ form.included_km }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">e.g. 250 KM/day free included</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.extra_km_rate.id_for_label }}">Extra KM Charge (₹ / KM)</label>
+            {{ form.extra_km_rate }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">Charged if customer exceeds total allowed KM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Specifications & Comfort -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border);">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; color: #FBBF24;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <div>
+            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Technical Specs & Comfort</h4>
+            <div style="font-size: 0.775rem; color: var(--color-text-muted);">Fuel type, transmission, seating, and air conditioning</div>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: 16px;">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.seats.id_for_label }}">Seating Capacity</label>
+            {{ form.seats }}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.fuel_type.id_for_label }}">Fuel Type</label>
+            {{ form.fuel_type }}
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="gap: 16px; margin-top: 8px;">
+          <div class="form-group">
+            <label class="form-label form-label-required" for="{{ form.transmission.id_for_label }}">Transmission</label>
+            {{ form.transmission }}
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="{{ form.ac_status.id_for_label }}">Climate / Air Conditioning</label>
+            {{ form.ac_status }}
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">e.g. Dual Zone A/C, Cold Climate Control</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Media & Description -->
+      <div class="card">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border);">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(168, 85, 247, 0.15); display: flex; align-items: center; justify-content: center; color: #C084FC;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          </div>
+          <div>
+            <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700;">Vehicle Media & Highlights</h4>
+            <div style="font-size: 0.775rem; color: var(--color-text-muted);">Direct photo image URL and description for renters</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label form-label-required" for="{{ form.image_url.id_for_label }}">Vehicle Image Direct URL</label>
+          {{ form.image_url }}
+          <span style="font-size: 0.75rem; color: var(--color-text-muted);">
+            Provide a direct image URL (Unsplash, Cloudinary, AWS S3, or public CDN). The preview on the right will update live!
+          </span>
+        </div>
+
+        <div class="form-group" style="margin-top: 14px;">
+          <label class="form-label" for="{{ form.description.id_for_label }}">Description & Trip Highlights</label>
+          {{ form.description }}
+          <span style="font-size: 0.75rem; color: var(--color-text-muted);">
+            Describe trunk luggage space, engine power, hill climb capability, and ride comfort.
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Live Customer Preview & Publish Controls -->
+    <div style="display: flex; flex-direction: column; gap: 20px; position: sticky; top: 20px;">
+      
+      <!-- Visibility & Settings Card -->
+      <div class="card" style="border: 1px solid rgba(0, 210, 255, 0.3); background-color: var(--color-surface-elevated);">
+        <h4 style="margin: 0 0 14px 0; font-size: 1rem; font-weight: 700; color: var(--color-text-primary);">
+          Publication Status
+        </h4>
+
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;">
+          <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none;">
+            {{ form.is_active }}
+            <div>
+              <div style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-primary);">Active & Rentable</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-muted);">
+                When checked, vehicle appears in search results, fleet catalog, and instant guest booking form.
+              </div>
+            </div>
+          </label>
+
+          <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; user-select: none;">
+            {{ form.is_featured }}
+            <div>
+              <div style="font-weight: 600; font-size: 0.9rem; color: #C084FC;">Feature in Home Spotlight</div>
+              <div style="font-size: 0.75rem; color: var(--color-text-muted);">
+                Featured cars appear in the top hero showcase on the website homepage.
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button type="submit" class="btn btn-primary btn-block" style="font-weight: 700; padding: 12px; font-size: 0.95rem; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>{% if is_edit %}Save Changes & Update Portal{% else %}Publish Vehicle to Fleet{% endif %}</span>
+          </button>
+          
+          <a href="{% url 'admin_manage_cars' %}" class="btn btn-secondary btn-block" style="text-align: center; justify-content: center;">
+            Cancel
+          </a>
+        </div>
+      </div>
+
+      <!-- Live Card Preview as Rendered to Renters -->
+      <div class="card" style="padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.05em;">
+            Live Customer Preview
+          </div>
+          <span class="badge badge-pending" style="font-size: 0.65rem;">Auto-Syncing</span>
+        </div>
+
+        <!-- Simulated Fleet Card -->
+        <div style="border-radius: var(--radius-md); overflow: hidden; background: var(--color-bg); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
+          <div style="position: relative; height: 160px; background: var(--color-surface-elevated); overflow: hidden;">
+            <img id="livePreviewImg" 
+                 src="{% if form.instance.image_url %}{{ form.instance.image_url }}{% elif form.image_url.value %}{{ form.image_url.value }}{% else %}https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80{% endif %}" 
+                 alt="Preview" 
+                 style="width: 100%; height: 100%; object-fit: cover;"
+                 onerror="this.src='https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80';">
+            
+            <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 6px;">
+              <span id="livePreviewClass" class="badge" style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); color: var(--color-primary-light); font-size: 0.7rem; padding: 2px 8px; border: 1px solid rgba(0, 210, 255, 0.3);">
+                SUV
+              </span>
+              <span id="livePreviewBadge" class="badge" style="background: rgba(245, 158, 11, 0.9); color: #000; font-weight: 700; font-size: 0.7rem; padding: 2px 8px;">
+                Popular
+              </span>
+            </div>
+
+            <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; color: #FBBF24; font-weight: 700;">
+              ★ 5.0 (New)
+            </div>
+          </div>
+
+          <div style="padding: 14px;">
+            <h4 id="livePreviewTitle" style="font-size: 1rem; font-weight: 700; margin: 0 0 6px 0; color: var(--color-text-primary);">
+              Mahindra Thar 4x4
+            </h4>
+
+            <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 12px; display: flex; gap: 8px;">
+              <span id="livePreviewSeats">5 Seats</span> &bull; 
+              <span id="livePreviewTrans">Manual</span> &bull; 
+              <span id="livePreviewFuel">Petrol</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--color-border);">
+              <div>
+                <div style="font-size: 0.7rem; color: var(--color-text-muted);">Daily Rate</div>
+                <div style="font-size: 1.05rem; font-weight: 700; color: var(--color-primary-light);">
+                  ₹<span id="livePreviewPrice">3500</span><span style="font-size: 0.7rem; color: var(--color-text-muted);">/day</span>
+                </div>
+              </div>
+              <span class="btn btn-primary btn-sm" style="pointer-events: none; opacity: 0.9; font-size: 0.75rem; padding: 4px 10px;">
+                Instant Book
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete Vehicle Section (if Editing) -->
+      {% if is_edit and car %}
+      <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.35); background-color: rgba(239, 68, 68, 0.04);">
+        <h4 style="margin: 0 0 8px 0; font-size: 0.95rem; font-weight: 700; color: #F87171;">
+          Decommission / Delete
+        </h4>
+        <p style="font-size: 0.775rem; color: var(--color-text-muted); margin-bottom: 12px;">
+          Permanently removes this vehicle if it has no active bookings, or deactivates it to protect existing customer vouchers.
+        </p>
+        <button type="button" onclick="confirmCarDelete()" class="btn btn-danger btn-sm btn-block" style="justify-content: center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          <span>Delete / Decommission Vehicle</span>
+        </button>
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+</form>
+
+{% if is_edit and car %}
+<!-- Hidden delete form triggered via confirmation -->
+<form id="carDeleteForm" method="POST" action="{% url 'admin_car_delete' car.id %}" style="display: none;">
+  {% csrf_token %}
+</form>
+
+<script>
+function confirmCarDelete() {
+  if (confirm("Are you sure you want to remove '{{ car.brand }} {{ car.model }}' from the fleet? If active bookings exist, it will be safely deactivated.")) {
+    document.getElementById('carDeleteForm').submit();
+  }
+}
+</script>
+{% endif %}
+
+<!-- Live Form-to-Preview Dynamic Synchronizer -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const brandInput = document.getElementById('id_brand');
+  const modelInput = document.getElementById('id_model');
+  const classInput = document.getElementById('id_vehicle_class');
+  const badgeInput = document.getElementById('id_badge');
+  const priceInput = document.getElementById('id_price_per_day');
+  const seatsInput = document.getElementById('id_seats');
+  const fuelInput = document.getElementById('id_fuel_type');
+  const transInput = document.getElementById('id_transmission');
+  const imageInput = document.getElementById('carImageUrlInput') || document.getElementById('id_image_url');
+
+  const previewTitle = document.getElementById('livePreviewTitle');
+  const previewClass = document.getElementById('livePreviewClass');
+  const previewBadge = document.getElementById('livePreviewBadge');
+  const previewPrice = document.getElementById('livePreviewPrice');
+  const previewSeats = document.getElementById('livePreviewSeats');
+  const previewFuel = document.getElementById('livePreviewFuel');
+  const previewTrans = document.getElementById('livePreviewTrans');
+  const previewImg = document.getElementById('livePreviewImg');
+
+  function syncPreview() {
+    if (previewTitle && brandInput && modelInput) {
+      const b = brandInput.value.trim() || 'Vehicle';
+      const m = modelInput.value.trim() || 'Model';
+      previewTitle.textContent = `${b} ${m}`;
+    }
+    if (previewClass && classInput) {
+      previewClass.textContent = classInput.options[classInput.selectedIndex]?.text || classInput.value || 'Car';
+    }
+    if (previewBadge && badgeInput) {
+      if (badgeInput.value.trim()) {
+        previewBadge.style.display = 'inline-block';
+        previewBadge.textContent = badgeInput.value.trim();
+      } else {
+        previewBadge.style.display = 'none';
+      }
+    }
+    if (previewPrice && priceInput) {
+      previewPrice.textContent = priceInput.value || '0';
+    }
+    if (previewSeats && seatsInput) {
+      previewSeats.textContent = `${seatsInput.value || '5'} Seats`;
+    }
+    if (previewFuel && fuelInput) {
+      previewFuel.textContent = fuelInput.value || 'Petrol';
+    }
+    if (previewTrans && transInput) {
+      previewTrans.textContent = transInput.value || 'Manual';
+    }
+    if (previewImg && imageInput && imageInput.value.trim()) {
+      previewImg.src = imageInput.value.trim();
+    }
+  }
+
+  const inputs = [brandInput, modelInput, classInput, badgeInput, priceInput, seatsInput, fuelInput, transInput, imageInput];
+  inputs.forEach(inp => {
+    if (inp) {
+      inp.addEventListener('input', syncPreview);
+      inp.addEventListener('change', syncPreview);
+    }
+  });
+
+  // Initial sync
+  syncPreview();
+});
+</script>
+{% endblock %}

@@ -1,12 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from datetime import date, datetime, timedelta
 import urllib.parse
 
 from .models import Location, Car, BookingRequest, Booking, CarReview
-from .forms import BookingForm, BookingLookupForm, CarReviewForm
+from .forms import BookingForm, BookingLookupForm, CarReviewForm, CarForm
 from .services import NotificationService
+
 
 
 def home_view(request):
@@ -431,9 +434,42 @@ def privacy_view(request):
 
 
 # -------------------------------------------------------------------
-# Owner Operations Admin Shell (Staff / Superusers)
+# -------------------------------------------------------------------
+# Owner Authentication & Dashboard Views (Staff / Superusers)
 # -------------------------------------------------------------------
 
+def owner_login_view(request):
+    """Owner & Fleet Manager authentication portal."""
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+        return redirect('admin_shell_preview')
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        user = authenticate(request, username=username, password=password)
+        if user is not None and (user.is_staff or user.is_superuser):
+            login(request, user)
+            messages.success(request, f"Welcome back, {user.username}! You are now logged into the Owner Operations Dashboard.")
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('admin_shell_preview')
+        else:
+            messages.error(request, "Invalid owner username or password. Please try again.")
+
+    return render(request, 'rentals/login.html', {
+        'next': request.GET.get('next', ''),
+    })
+
+
+def owner_logout_view(request):
+    """Log out of owner dashboard."""
+    logout(request)
+    messages.info(request, "You have been logged out of the Owner Dashboard.")
+    return redirect('home')
+
+
+@login_required(login_url='owner_login')
 def admin_shell_preview_view(request):
     """Owner Operations Control Dashboard with live actions and automated notifications."""
     if request.method == 'POST':
@@ -483,3 +519,123 @@ def admin_shell_preview_view(request):
         'pending_wa_count': pending_wa_count,
         'status_filter': status_filter,
     })
+
+
+@login_required(login_url='owner_login')
+def admin_manage_cars_view(request):
+    """Dedicated Owner/Staff Fleet Management view with status toggles and Django admin links."""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        car_id = request.POST.get('car_id')
+        if car_id:
+            car = get_object_or_404(Car, id=car_id)
+            if action == 'toggle_active':
+                car.is_active = not car.is_active
+                car.save()
+                status_str = "Active (Visible to Renters)" if car.is_active else "Inactive (Hidden from Renters)"
+                messages.success(request, f"{car.brand} {car.model} is now {status_str}.")
+            elif action == 'toggle_featured':
+                car.is_featured = not car.is_featured
+                car.save()
+                feat_str = "Featured on Homepage" if car.is_featured else "Standard Fleet"
+                messages.success(request, f"{car.brand} {car.model} is now {feat_str}.")
+        return redirect('admin_manage_cars')
+
+    cars = Car.objects.all().order_by('-is_active', 'brand', 'model')
+    total_cars = cars.count()
+    active_cars = cars.filter(is_active=True).count()
+    inactive_cars = cars.filter(is_active=False).count()
+    featured_cars = cars.filter(is_featured=True).count()
+
+    return render(request, 'rentals/admin_cars.html', {
+        'cars': cars,
+        'total_cars': total_cars,
+        'active_cars': active_cars,
+        'inactive_cars': inactive_cars,
+        'featured_cars': featured_cars,
+    })
+
+
+@login_required(login_url='owner_login')
+def admin_car_create_view(request):
+    """Allow owner to add a new vehicle directly into the fleet from the custom portal."""
+    if request.method == 'POST':
+        form = CarForm(request.POST)
+        if form.is_valid():
+            car = form.save()
+            status_visibility = "and is immediately live on the customer portal" if car.is_active else "(set as inactive/hidden)"
+            messages.success(
+                request,
+                f"🎉 {car.brand} {car.model} successfully added to the fleet {status_visibility}!"
+            )
+            return redirect('admin_manage_cars')
+        else:
+            messages.error(request, "Please correct the errors in the form before saving.")
+    else:
+        # Default placeholder sample image if empty
+        form = CarForm(initial={
+            'price_per_day': 3000,
+            'security_deposit': 3000,
+            'included_km': 250,
+            'extra_km_rate': 12,
+            'seats': 5,
+            'is_active': True,
+            'is_featured': False,
+            'image_url': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80',
+        })
+
+    return render(request, 'rentals/admin_car_form.html', {
+        'form': form,
+        'is_edit': False,
+        'car': None,
+    })
+
+
+@login_required(login_url='owner_login')
+def admin_car_edit_view(request, car_id):
+    """Allow owner to edit vehicle specs, pricing, photos, and visibility directly from the portal."""
+    car = get_object_or_404(Car, id=car_id)
+
+    if request.method == 'POST':
+        form = CarForm(request.POST, instance=car)
+        if form.is_valid():
+            car = form.save()
+            messages.success(
+                request,
+                f"✅ {car.brand} {car.model} updated successfully! Changes are instantly reflected on customer search and booking pages."
+            )
+            return redirect('admin_manage_cars')
+        else:
+            messages.error(request, "Please fix the validation errors below.")
+    else:
+        form = CarForm(instance=car)
+
+    return render(request, 'rentals/admin_car_form.html', {
+        'form': form,
+        'is_edit': True,
+        'car': car,
+    })
+
+
+@login_required(login_url='owner_login')
+def admin_car_delete_view(request, car_id):
+    """Allow owner to delete or decommission a car from fleet."""
+    car = get_object_or_404(Car, id=car_id)
+    if request.method == 'POST':
+        car_name = f"{car.brand} {car.model}"
+        # If there are active/confirmed bookings, warn and allow safe deactivation or deletion
+        active_bookings_count = car.bookings.filter(status__in=['PENDING', 'CONFIRMED']).count()
+        if active_bookings_count > 0:
+            # Safe action: deactivate instead of hard delete to preserve booking references
+            car.is_active = False
+            car.save()
+            messages.warning(
+                request,
+                f"⚠️ {car_name} has {active_bookings_count} active/pending booking(s). It has been deactivated and hidden from customers instead of permanently deleted to preserve rental vouchers."
+            )
+        else:
+            car.delete()
+            messages.success(request, f"🗑️ {car_name} was removed from the fleet.")
+    return redirect('admin_manage_cars')
+
+

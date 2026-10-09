@@ -22,6 +22,12 @@ urlpatterns = [
     path('rental-rules/', views.rental_rules_view, name='rental_rules'),
     path('privacy/', views.privacy_view, name='privacy'),
 
-    # Owner Admin Portal (Staff / Operations)
+    # Owner Authentication & Admin Portal (Staff / Operations)
+    path('owner/login/', views.owner_login_view, name='owner_login'),
+    path('owner/logout/', views.owner_logout_view, name='owner_logout'),
     path('admin-portal/', views.admin_shell_preview_view, name='admin_shell_preview'),
+    path('admin-portal/cars/', views.admin_manage_cars_view, name='admin_manage_cars'),
+    path('admin-portal/cars/add/', views.admin_car_create_view, name='admin_car_add'),
+    path('admin-portal/cars/<int:car_id>/edit/', views.admin_car_edit_view, name='admin_car_edit'),
+    path('admin-portal/cars/<int:car_id>/delete/', views.admin_car_delete_view, name='admin_car_delete'),
 ]

@@ -151,3 +151,34 @@ class CarReviewForm(forms.Form):
         })
     )
 
+
+class CarForm(forms.ModelForm):
+    """Admin & Owner portal form for creating and updating vehicles in the fleet."""
+    class Meta:
+        model = Car
+        fields = [
+            'brand', 'model', 'vehicle_class', 'badge',
+            'price_per_day', 'security_deposit', 'included_km', 'extra_km_rate',
+            'seats', 'fuel_type', 'transmission', 'ac_status',
+            'image_url', 'description', 'is_featured', 'is_active'
+        ]
+        widgets = {
+            'brand': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Mahindra, Hyundai, Toyota, Tata', 'required': True}),
+            'model': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Thar 4x4, Creta SX, Innova Crysta', 'required': True}),
+            'vehicle_class': forms.Select(attrs={'class': 'form-select'}),
+            'badge': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Popular Choice, 7-Seater, Luxury Executive, 4x4 Offroad'}),
+            'price_per_day': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '3500', 'min': '1', 'required': True}),
+            'security_deposit': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '3000', 'min': '0'}),
+            'included_km': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '250', 'min': '0'}),
+            'extra_km_rate': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '12', 'min': '0'}),
+            'seats': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '5', 'min': '1', 'max': '20'}),
+            'fuel_type': forms.Select(attrs={'class': 'form-select'}),
+            'transmission': forms.Select(attrs={'class': 'form-select'}),
+            'ac_status': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'e.g. Cold Climate Control A/C'}),
+            'image_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://images.unsplash.com/... or vehicle photo link', 'id': 'carImageUrlInput'}),
+            'description': forms.Textarea(attrs={'class': 'form-input', 'rows': 4, 'placeholder': 'Key features, trunk capacity, highway performance, cleanliness notes...'}),
+            'is_featured': forms.CheckboxInput(attrs={'class': 'form-checkbox', 'id': 'isFeaturedCheckbox', 'style': 'width: 18px; height: 18px; cursor: pointer;'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-checkbox', 'id': 'isActiveCheckbox', 'style': 'width: 18px; height: 18px; cursor: pointer;'}),
+        }
+
+

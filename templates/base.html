@@ -146,9 +146,19 @@
           <span>Track Booking</span>
         </a>
 
-        {% if user.is_staff %}
-          <a href="{% url 'admin_shell_preview' %}" class="btn btn-secondary btn-sm desktop-only" style="border-color: var(--color-warning); color: var(--color-warning);" title="Owner Dashboard">
-            Owner Shell
+        <!-- Prominent Owner Portal Action Button on Top Bar -->
+        {% if user.is_authenticated and user.is_staff %}
+          <a href="{% url 'admin_shell_preview' %}" class="btn btn-secondary btn-sm" style="border-color: var(--color-warning); color: var(--color-warning); font-weight: 600;" title="Owner Dashboard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Owner Portal</span>
+          </a>
+          <a href="{% url 'owner_logout' %}" class="btn btn-outline btn-sm desktop-only" style="padding: 6px 10px; font-size: 0.8rem; border-color: rgba(255,255,255,0.2);" title="Logout">
+            Logout
+          </a>
+        {% else %}
+          <a href="{% url 'owner_login' %}" class="btn btn-secondary btn-sm" style="border-color: rgba(245, 158, 11, 0.4); color: var(--color-warning); font-weight: 600;" title="Owner Dashboard Login">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Owner Portal</span>
           </a>
         {% endif %}
 
@@ -171,7 +181,10 @@
       <a href="{% url 'rental_policy' %}" class="nav-link {% if '/rental-policy' in request.path %}active{% endif %}">Rental Policy & Vehicle Care</a>
       <a href="{% url 'rental_rules' %}" class="nav-link {% if '/rental-rules' in request.path %}active{% endif %}">Rental Rules</a>
       <a href="{% url 'contact' %}" class="nav-link {% if '/contact' in request.path %}active{% endif %}">Contact & Pickup Locations</a>
-      <a href="{% url 'admin_shell_preview' %}" class="nav-link" style="color: var(--color-warning);">Owner Admin Portal</a>
+      <a href="{% if user.is_authenticated and user.is_staff %}{% url 'admin_shell_preview' %}{% else %}{% url 'owner_login' %}{% endif %}" class="nav-link" style="color: var(--color-warning); font-weight: 700;">🔑 Owner Portal</a>
+      {% if user.is_authenticated and user.is_staff %}
+        <a href="{% url 'owner_logout' %}" class="nav-link" style="color: #F87171;">Logout ({{ user.username }})</a>
+      {% endif %}
     </div>
   </header>
 

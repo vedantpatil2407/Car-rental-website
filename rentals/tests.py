@@ -345,3 +345,111 @@ class CustomerReviewsAndRatingTests(TestCase):
         self.assertContains(resp, "✓ Verified Renter")
         self.assertContains(resp, "Write a Review")
 
+
+class OwnerFleetManagementTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.car = Car.objects.create(
+            brand="Hyundai",
+            model="Verna SX",
+            vehicle_class="Sedan",
+            price_per_day=2500,
+            security_deposit=3000,
+            is_active=True,
+            is_featured=False
+        )
+
+    def test_admin_manage_cars_view_renders_owner_ui(self):
+        """Test owner portal manage cars view renders distinctly with admin links."""
+        resp = self.client.get(reverse('admin_manage_cars'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, "Fleet & Inventory Management")
+        self.assertContains(resp, "Hyundai Verna SX")
+        self.assertContains(resp, reverse('admin_car_add'))
+        self.assertContains(resp, reverse('admin_car_edit', args=[self.car.id]))
+
+    def test_admin_car_add_view(self):
+        """Test owner can add a new car via portal and it appears on customer portal."""
+        resp = self.client.post(reverse('admin_car_add'), {
+            'brand': 'Tata',
+            'model': 'Harrier Dark Edition',
+            'vehicle_class': 'SUV',
+            'price_per_day': 3800,
+            'security_deposit': 4000,
+            'included_km': 300,
+            'extra_km_rate': 14,
+            'seats': 5,
+            'fuel_type': 'Diesel',
+            'transmission': 'Automatic',
+            'ac_status': 'Cold A/C',
+            'image_url': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341',
+            'description': 'Premium SUV with sunroof',
+            'is_active': True,
+            'is_featured': True
+        })
+        self.assertEqual(resp.status_code, 302)
+        new_car = Car.objects.get(model='Harrier Dark Edition')
+        self.assertEqual(new_car.price_per_day, 3800)
+        self.assertTrue(new_car.is_active)
+
+        # Check visibility on customer fleet page
+        customer_resp = self.client.get(reverse('cars_list'))
+        self.assertContains(customer_resp, 'Tata Harrier Dark Edition')
+
+    def test_admin_car_edit_view(self):
+        """Test owner can edit car specs and changes reflect on customer portal."""
+        resp = self.client.post(reverse('admin_car_edit', args=[self.car.id]), {
+            'brand': 'Hyundai',
+            'model': 'Verna Turbo 2026',
+            'vehicle_class': 'Sedan',
+            'price_per_day': 2900,
+            'security_deposit': 3000,
+            'included_km': 250,
+            'extra_km_rate': 12,
+            'seats': 5,
+            'fuel_type': 'Petrol',
+            'transmission': 'Automatic',
+            'ac_status': 'Dual Zone Climate Control',
+            'image_url': 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341',
+            'description': 'Updated description',
+            'is_active': True,
+            'is_featured': True
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.car.refresh_from_db()
+        self.assertEqual(self.car.model, 'Verna Turbo 2026')
+        self.assertEqual(self.car.price_per_day, 2900)
+
+        # Check update visible on customer car detail page
+        detail_resp = self.client.get(reverse('car_detail', args=[self.car.id]))
+        self.assertContains(detail_resp, 'Hyundai Verna Turbo 2026')
+        self.assertContains(detail_resp, '2900')
+
+    def test_toggle_car_active_status(self):
+        """Test owner can toggle car active/inactive visibility."""
+        resp = self.client.post(reverse('admin_manage_cars'), {
+            'car_id': self.car.id,
+            'action': 'toggle_active'
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.car.refresh_from_db()
+        self.assertFalse(self.car.is_active)
+
+        # Inactive car should not show in customer fleet list context
+        anon_client = Client()
+        customer_resp = anon_client.get(reverse('cars_list'))
+        self.assertNotContains(customer_resp, 'Hyundai Verna SX')
+
+
+    def test_toggle_car_featured_status(self):
+        """Test owner can toggle featured flag."""
+        resp = self.client.post(reverse('admin_manage_cars'), {
+            'car_id': self.car.id,
+            'action': 'toggle_featured'
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.car.refresh_from_db()
+        self.assertTrue(self.car.is_featured)
+
+
+
