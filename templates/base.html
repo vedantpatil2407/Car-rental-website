@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>{% block title %}{{ BUSINESS_NAME }} — Self-Drive Car Rental{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Premium & reliable self-drive car rentals with Keys to your freedom. Simple guest booking, transparent terms, and direct local owner support.{% endblock %}">
   
@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#090D16">
   
   <!-- CSS Design System -->
-  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=2.5">
   
   <!-- High-Priority Universal Form & Input Theme Styling -->
   <style>
@@ -36,7 +36,7 @@
       border: 1px solid rgba(255, 255, 255, 0.18) !important;
       border-radius: 10px !important;
       padding: 12px 14px !important;
-      font-size: 0.95rem !important;
+      font-size: 16px !important;
       font-family: inherit !important;
       width: 100% !important;
       color-scheme: dark !important;
@@ -138,7 +138,7 @@
         </a>
 
         <!-- Direct Track Booking Action (Replaces customer login/signup) -->
-        <a href="{% url 'booking_lookup' %}" class="btn btn-primary btn-sm" title="Track Booking Status">
+        <a href="{% url 'booking_lookup' %}" class="btn btn-primary btn-sm desktop-only" title="Track Booking Status">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -148,7 +148,7 @@
 
         <!-- Prominent Owner Portal Action Button on Top Bar -->
         {% if user.is_authenticated and user.is_staff %}
-          <a href="{% url 'admin_shell_preview' %}" class="btn btn-secondary btn-sm" style="border-color: var(--color-warning); color: var(--color-warning); font-weight: 600;" title="Owner Dashboard">
+          <a href="{% url 'admin_shell_preview' %}" class="btn btn-secondary btn-sm desktop-only" style="border-color: var(--color-warning); color: var(--color-warning); font-weight: 600;" title="Owner Dashboard">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             <span>Owner Portal</span>
           </a>
@@ -156,7 +156,7 @@
             Logout
           </a>
         {% else %}
-          <a href="{% url 'owner_login' %}" class="btn btn-secondary btn-sm" style="border-color: rgba(245, 158, 11, 0.4); color: var(--color-warning); font-weight: 600;" title="Owner Dashboard Login">
+          <a href="{% url 'owner_login' %}" class="btn btn-secondary btn-sm desktop-only" style="border-color: rgba(245, 158, 11, 0.4); color: var(--color-warning); font-weight: 600;" title="Owner Dashboard Login">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             <span>Owner Portal</span>
           </a>
@@ -173,7 +173,8 @@
       </div>
     </div>
 
-    <!-- Mobile Drawer Menu -->
+    <!-- Mobile Drawer Overlay & Menu -->
+    <div id="mobileDrawerOverlay" class="mobile-drawer-overlay"></div>
     <div id="mobileDrawer" class="mobile-drawer">
       <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
       <a href="{% url 'cars_list' %}" class="nav-link {% if '/cars' in request.path %}active{% endif %}">Our Fleet</a>
@@ -200,7 +201,7 @@
   {% endif %}
 
   <!-- Main Content Block -->
-  <main id="mainContent" style="flex: 1;">
+  <main id="mainContent" style="flex: 1 1 auto; min-width: 0; width: 100%; max-width: 100%; overflow-x: hidden;">
     {% block content %}{% endblock %}
   </main>
 

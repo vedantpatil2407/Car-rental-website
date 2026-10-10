@@ -37,7 +37,7 @@
   <div class="container" style="max-width: 780px;">
 
     <!-- Action Bar -->
-    <div class="no-print flex justify-between items-center" style="margin-bottom: 20px;">
+    <div class="no-print flex justify-between items-center voucher-action-bar" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
       <a href="{% url 'booking_lookup' %}?ref={{ booking.booking_ref }}&phone={{ booking.customer_phone|default:booking.customer_mobile }}" class="btn btn-ghost btn-sm">
         ← Back to Booking Tracker
       </a>

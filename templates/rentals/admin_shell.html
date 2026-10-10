@@ -5,7 +5,7 @@
 
 {% block admin_content %}
 <!-- Dashboard Stats Grid -->
-<div class="grid grid-4" style="gap: 16px; margin-bottom: 28px;">
+<div class="grid grid-4 admin-stats-grid" style="gap: 16px; margin-bottom: 28px;">
   <div class="admin-stat-card" style="border: 1px solid rgba(245, 158, 11, 0.4);">
     <div class="admin-stat-label" style="color: #FBBF24;">Pending Requests</div>
     <div class="admin-stat-value" style="color: #FBBF24;">{{ pending_count }}</div>
@@ -44,7 +44,7 @@
 
 <!-- Booking Requests Table -->
 <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
-  <div style="padding: 16px 20px; background-color: var(--color-surface-elevated); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+  <div style="padding: 16px 20px; background-color: var(--color-surface-elevated); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <div>
       <h3 style="font-size: 1.15rem; color: var(--color-text-primary);">Live Booking Requests & WhatsApp Action Queue</h3>
       <p style="font-size: 0.8rem; color: var(--color-text-muted);">Confirm customer bookings, view rental amounts, and dispatch instant WhatsApp messages</p>
@@ -54,7 +54,72 @@
     </div>
   </div>
 
-  <div style="overflow-x: auto;">
+  <!-- Mobile Bookings List (Shown on screens <= 768px) -->
+  <div class="admin-bookings-mobile-list mobile-only" style="padding: 12px 14px;">
+    {% for b in bookings %}
+      <div class="admin-mobile-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <div>
+            <strong style="color: var(--color-primary); font-family: monospace; font-size: 1.05rem;">{{ b.booking_ref }}</strong>
+            <div style="font-weight: 700; color: var(--color-text-primary); margin-top: 2px;">{{ b.customer_name }}</div>
+          </div>
+          <div>
+            {% if b.status == 'PENDING' %}
+              <span class="badge badge-pending">PENDING</span>
+            {% elif b.status == 'CONFIRMED' %}
+              <span class="badge badge-confirmed">CONFIRMED</span>
+            {% elif b.status == 'REJECTED' %}
+              <span class="badge badge-danger">REJECTED</span>
+            {% elif b.status == 'CANCELLED' %}
+              <span class="badge badge-danger">CANCELLED</span>
+            {% else %}
+              <span class="badge badge-cyan">{{ b.get_status_display }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 10px; line-height: 1.5;">
+          <div>🚗 <strong>{{ b.car.brand }} {{ b.car.model }}</strong> ({{ b.car.vehicle_class }})</div>
+          <div>📅 {{ b.pickup_date|date:"M d" }} → {{ b.return_date|date:"M d" }} ({{ b.total_days }} day{{ b.total_days|pluralize }})</div>
+          {% if b.pickup_location %}<div>📍 {{ b.pickup_location.name }}</div>{% endif %}
+          <div>💵 Payable at Pickup: <strong style="color: var(--color-primary-light);">₹{{ b.payable_at_pickup|default:b.estimated_amount }}</strong></div>
+        </div>
+
+        <div class="flex gap-2" style="margin-bottom: 8px; flex-wrap: wrap;">
+          <a href="{{ b.wa_link }}" target="_blank" class="btn btn-whatsapp btn-sm" style="flex: 1; justify-content: center;">
+            💬 WhatsApp Renter
+          </a>
+          <a href="{% url 'booking_voucher' b.booking_ref %}" target="_blank" class="btn btn-secondary btn-sm" style="flex: 1; justify-content: center;">
+            Voucher ↗
+          </a>
+        </div>
+
+        {% if b.status == 'PENDING' %}
+          <div class="flex gap-2">
+            <form method="POST" style="flex: 1;">
+              {% csrf_token %}
+              <input type="hidden" name="booking_id" value="{{ b.id }}">
+              <input type="hidden" name="action" value="confirm">
+              <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center;">✓ Confirm</button>
+            </form>
+            <form method="POST" style="flex: 1;">
+              {% csrf_token %}
+              <input type="hidden" name="booking_id" value="{{ b.id }}">
+              <input type="hidden" name="action" value="reject">
+              <button type="submit" class="btn btn-danger btn-sm" style="width: 100%; justify-content: center;">✕ Reject</button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <div class="card" style="text-align: center; padding: 24px; color: var(--color-text-muted);">
+        No booking requests found for this filter.
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Desktop Bookings Table (Shown on screens >= 769px) -->
+  <div class="desktop-only" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
     <table class="admin-table">
       <thead>
         <tr>

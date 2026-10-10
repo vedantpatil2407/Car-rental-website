@@ -3,15 +3,51 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Mobile drawer toggle
+  // Mobile drawer toggle & overlay
   const mobileToggle = document.getElementById('mobileToggle');
   const mobileDrawer = document.getElementById('mobileDrawer');
+  const mobileDrawerOverlay = document.getElementById('mobileDrawerOverlay');
+
+  function openMobileDrawer() {
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.add('open');
+    if (mobileDrawerOverlay) mobileDrawerOverlay.classList.add('open');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('drawer-open');
+  }
+
+  function closeMobileDrawer() {
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.remove('open');
+    if (mobileDrawerOverlay) mobileDrawerOverlay.classList.remove('open');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('drawer-open');
+  }
 
   if (mobileToggle && mobileDrawer) {
-    mobileToggle.addEventListener('click', function () {
-      mobileDrawer.classList.toggle('open');
-      const isExpanded = mobileDrawer.classList.contains('open');
-      mobileToggle.setAttribute('aria-expanded', isExpanded);
+    mobileToggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (mobileDrawer.classList.contains('open')) {
+        closeMobileDrawer();
+      } else {
+        openMobileDrawer();
+      }
+    });
+
+    if (mobileDrawerOverlay) {
+      mobileDrawerOverlay.addEventListener('click', closeMobileDrawer);
+    }
+
+    // Close when clicking any nav link
+    mobileDrawer.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', closeMobileDrawer);
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && mobileDrawer.classList.contains('open')) {
+        closeMobileDrawer();
+      }
     });
   }
 

@@ -65,7 +65,7 @@
 
       <!-- Right Column: Booking Request Panel -->
       <div>
-        <div class="card card-elevated" style="padding: 28px; border: 1px solid rgba(0, 210, 255, 0.3); position: sticky; top: 88px;">
+        <div class="card card-elevated car-detail-sticky-panel" style="padding: 28px; border: 1px solid rgba(0, 210, 255, 0.3); position: sticky; top: 88px;">
           <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 16px;">
             <div>
               <div class="car-brand">{{ car.brand }}</div>
@@ -147,8 +147,8 @@
       </div>
 
       <!-- Overall Rating Scorecard & Breakdown Bars (Full Width Horizontal Banner) -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 24px 32px; margin-bottom: 32px;">
-        <div style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-right: 16px; border-right: 1px solid rgba(255, 255, 255, 0.08);">
+      <div class="review-scorecard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; align-items: center; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 24px 32px; margin-bottom: 32px;">
+        <div class="review-scorecard-left" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-right: 16px; border-right: 1px solid rgba(255, 255, 255, 0.08);">
           <div style="font-size: 3.5rem; font-weight: 900; line-height: 1; color: var(--color-warning);">
             {{ car.average_rating }}
           </div>
@@ -256,7 +256,7 @@
 
       <!-- Reviews Horizontal Grid (Responsive Multi-Column Full-Width Cards) -->
       {% if reviews %}
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; width: 100%;">
+        <div class="reviews-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; width: 100%;">
           {% for review in reviews %}
             <div class="glass-card" style="padding: 22px 24px; border-radius: var(--radius-lg); border-left: 4px solid {% if review.is_verified_renter %}var(--color-success){% else %}var(--color-primary-light){% endif %}; display: flex; flex-direction: column; justify-content: space-between; height: 100%; transition: transform var(--transition-fast), border-color var(--transition-fast);">
               <div>

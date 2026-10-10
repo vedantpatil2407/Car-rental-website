@@ -5,7 +5,7 @@
 
 {% block admin_content %}
 <!-- Fleet Stats Grid -->
-<div class="grid grid-4" style="gap: 16px; margin-bottom: 28px;">
+<div class="grid grid-4 admin-stats-grid" style="gap: 16px; margin-bottom: 28px;">
   <div class="admin-stat-card" style="border: 1px solid rgba(0, 210, 255, 0.35);">
     <div class="admin-stat-label" style="color: var(--color-primary);">Total Vehicles</div>
     <div class="admin-stat-value" style="color: var(--color-primary);">{{ total_cars }}</div>
@@ -54,7 +54,7 @@
 
 <!-- Cars Table -->
 <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 28px;">
-  <div style="padding: 16px 20px; background-color: var(--color-surface-elevated); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+  <div style="padding: 16px 20px; background-color: var(--color-surface-elevated); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
     <div style="font-weight: 700; color: var(--color-text-primary); font-size: 0.95rem;">
       Fleet Inventory List ({{ total_cars }} Vehicles)
     </div>
@@ -63,7 +63,92 @@
     </div>
   </div>
 
-  <div style="overflow-x: auto;">
+  <!-- Mobile Vehicle Cards View (Shown on screens <= 768px) -->
+  <div class="admin-cars-mobile-list mobile-only" style="padding: 12px 14px;">
+    {% for car in cars %}
+      <div class="admin-mobile-card">
+        <div class="admin-mobile-card-header">
+          <div class="admin-mobile-car-img">
+            <img src="{{ car.image_url }}" alt="{{ car.brand }} {{ car.model }}" loading="lazy">
+          </div>
+          <div class="admin-mobile-car-meta">
+            <h4 class="admin-mobile-car-title">{{ car.brand }} {{ car.model }}</h4>
+            <div class="flex gap-1" style="margin-top: 2px; flex-wrap: wrap;">
+              <span class="badge" style="background: rgba(0, 210, 255, 0.12); color: var(--color-primary-light); font-size: 0.68rem; padding: 1px 6px;">
+                {{ car.vehicle_class }}
+              </span>
+              {% if car.badge %}
+                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--color-warning); font-size: 0.68rem; padding: 1px 6px;">
+                  {{ car.badge }}
+                </span>
+              {% endif %}
+            </div>
+            <div class="admin-mobile-car-price">
+              <strong>₹{{ car.price_per_day }}</strong> <span style="font-size: 0.75rem; color: var(--color-text-muted);">/ day</span>
+              &bull; <span style="font-size: 0.75rem; color: var(--color-text-muted);">₹{{ car.security_deposit }} dep</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-mobile-specs-row">
+          <span>{{ car.seats }} Seats</span> &bull;
+          <span>{{ car.transmission }}</span> &bull;
+          <span>{{ car.fuel_type }}</span> &bull;
+          <span>{{ car.included_km }} km/d</span> &bull;
+          <span style="color: var(--color-warning);">★ {{ car.average_rating }}</span>
+        </div>
+
+        <div class="admin-mobile-toggles-row">
+          <form method="POST" style="flex: 1;">
+            {% csrf_token %}
+            <input type="hidden" name="car_id" value="{{ car.id }}">
+            <input type="hidden" name="action" value="toggle_active">
+            {% if car.is_active %}
+              <button type="submit" class="badge badge-confirmed" style="width: 100%; justify-content: center; padding: 7px 10px; cursor: pointer; border: none; font-size: 0.75rem;">
+                ✓ Active
+              </button>
+            {% else %}
+              <button type="submit" class="badge badge-danger" style="width: 100%; justify-content: center; padding: 7px 10px; cursor: pointer; border: none; font-size: 0.75rem;">
+                ✕ Inactive
+              </button>
+            {% endif %}
+          </form>
+
+          <form method="POST" style="flex: 1;">
+            {% csrf_token %}
+            <input type="hidden" name="car_id" value="{{ car.id }}">
+            <input type="hidden" name="action" value="toggle_featured">
+            {% if car.is_featured %}
+              <button type="submit" class="badge" style="width: 100%; justify-content: center; padding: 7px 10px; background: rgba(168, 85, 247, 0.2); color: #C084FC; cursor: pointer; border: 1px solid rgba(168, 85, 247, 0.4); font-size: 0.75rem;">
+                ★ Featured
+              </button>
+            {% else %}
+              <button type="submit" class="badge" style="width: 100%; justify-content: center; padding: 7px 10px; background: rgba(255, 255, 255, 0.06); color: var(--color-text-muted); cursor: pointer; border: 1px solid var(--color-border); font-size: 0.75rem;">
+                Standard
+              </button>
+            {% endif %}
+          </form>
+        </div>
+
+        <div class="admin-mobile-actions-row">
+          <a href="{% url 'admin_car_edit' car.id %}" class="btn btn-primary btn-sm" style="flex: 1; justify-content: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>Edit Vehicle</span>
+          </a>
+          <a href="{% url 'car_detail' car.id %}" class="btn btn-secondary btn-sm" target="_blank" style="flex: 1; justify-content: center;">
+            <span>Preview ↗</span>
+          </a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="card" style="text-align: center; padding: 24px; color: var(--color-text-muted);">
+        No vehicles found in fleet. Click <a href="{% url 'admin_car_add' %}" style="color: var(--color-primary); font-weight: 600;">+ Add New Vehicle</a> to register a car.
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Desktop Cars Table (Shown on screens >= 769px) -->
+  <div class="desktop-only" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
     <table class="admin-table">
       <thead>
         <tr>

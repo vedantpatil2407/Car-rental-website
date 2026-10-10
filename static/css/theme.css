@@ -155,18 +155,69 @@ h4 { font-size: 1.15rem; }
   }
 }
 
+@media (max-width: 380px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
 /* Grid Utilities */
 .grid { display: grid; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); gap: 20px; }
 .grid-3 { grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .grid-4 { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.grid-cols-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
 @media (max-width: 992px) {
   .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 640px) {
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4, .grid-cols-2 { grid-template-columns: 1fr !important; }
+}
+
+/* Glass Card */
+.glass-card {
+  background: rgba(19, 27, 44, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Responsive Visibility Helpers */
+.desktop-only {
+  display: inherit;
+}
+.mobile-only {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .admin-sidebar .admin-user-pill {
+    display: inline-flex !important;
+  }
+  .admin-user-footer {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: block !important;
+  }
+  span.mobile-only,
+  a.mobile-only.btn,
+  .admin-user-pill.mobile-only {
+    display: inline-flex !important;
+  }
 }
 
 /* Flex Utilities */
@@ -599,12 +650,21 @@ select:-webkit-autofill {
 /* Mobile Menu Toggle */
 .mobile-toggle {
   display: none;
-  background: none;
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-light);
   color: var(--color-text-primary);
-  padding: 8px;
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-toggle:hover {
+  background: rgba(0, 210, 255, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 @media (max-width: 860px) {
@@ -616,28 +676,88 @@ select:-webkit-autofill {
   }
 }
 
+/* Mobile Navigation Backdrop Overlay */
+.mobile-drawer-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.mobile-drawer-overlay.open {
+  display: block;
+  opacity: 1;
+}
+
 /* Mobile Navigation Overlay / Drawer */
 .mobile-drawer {
   position: fixed;
-  top: 64px;
+  top: 60px;
   left: 0;
   right: 0;
-  background-color: var(--color-bg-alt);
-  border-bottom: 1px solid var(--color-border);
-  padding: 20px;
+  background-color: rgba(13, 19, 34, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 210, 255, 0.25);
+  padding: 16px 20px;
   display: none;
   flex-direction: column;
-  gap: 14px;
-  z-index: 99;
+  gap: 8px;
+  z-index: 999;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-drawer.open {
   display: flex;
+  animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mobile-drawer .nav-link {
-  font-size: 1.05rem;
-  padding: 8px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-text-primary);
+  transition: all 0.2s ease;
+}
+
+.mobile-drawer .nav-link:hover,
+.mobile-drawer .nav-link.active {
+  background: rgba(0, 210, 255, 0.1);
+  border-color: rgba(0, 210, 255, 0.35);
+  color: var(--color-primary);
+}
+
+/* Lock body scrolling when drawer is open */
+body.drawer-open {
+  overflow: hidden;
 }
 
 /* ============================================================
@@ -649,15 +769,16 @@ select:-webkit-autofill {
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--bottom-nav-height);
-  background-color: rgba(13, 19, 34, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--color-border);
-  z-index: 100;
-  padding: 6px 12px;
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  background-color: rgba(9, 13, 22, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
   justify-content: space-around;
   align-items: center;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
 }
 
 @media (max-width: 768px) {
@@ -1012,6 +1133,9 @@ select:-webkit-autofill {
 .admin-layout {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .admin-sidebar {
@@ -1024,11 +1148,32 @@ select:-webkit-autofill {
   flex-shrink: 0;
 }
 
+.admin-sidebar-header {
+  margin-bottom: 24px;
+}
+
+.admin-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+.admin-user-footer {
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+  margin-top: auto;
+}
+
 .admin-main {
   flex-grow: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
   background-color: var(--color-bg);
   padding: 28px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .admin-nav-item {
@@ -1052,6 +1197,103 @@ select:-webkit-autofill {
 .admin-nav-item.active {
   border-left: 3px solid var(--color-primary);
   color: var(--color-primary);
+}
+
+/* Admin Mobile Card Styles */
+.admin-mobile-card {
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.admin-mobile-card-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-mobile-car-img {
+  width: 72px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.admin-mobile-car-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-mobile-car-meta {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.admin-mobile-car-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-mobile-car-price {
+  font-size: 0.825rem;
+  color: var(--color-primary-light);
+  margin-top: 3px;
+}
+
+.admin-mobile-specs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-mobile-toggles-row {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-mobile-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.725rem;
+  font-weight: 600;
+}
+
+.admin-user-pill .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10B981;
 }
 
 .admin-stat-card {
@@ -1108,13 +1350,427 @@ select:-webkit-autofill {
   color: var(--color-text-primary);
 }
 
+.table-scroll-hint {
+  display: none;
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE SYSTEM & FIXES (MAX-WIDTH: 900px, 768px, 576px)
+   ============================================================ */
+
+/* Global Mobile Fixes: Prevent horizontal overflow */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, strong, a, .card, .glass-card {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
 @media (max-width: 900px) {
   .admin-layout {
     flex-direction: column;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
+
   .admin-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
+    width: 100% !important;
+    max-width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    padding: 14px 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-sidebar-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+  }
+
+  .admin-sidebar .brand-logo {
+    margin-bottom: 0 !important;
+  }
+
+  .admin-user-pill {
+    display: inline-flex !important;
+  }
+
+  .admin-user-footer {
+    display: none !important;
+  }
+
+  .admin-sidebar nav,
+  .admin-nav-links {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 0 !important;
+    scrollbar-width: none;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .admin-sidebar nav::-webkit-scrollbar,
+  .admin-nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-nav-item {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 8px 12px !important;
+    font-size: 0.825rem !important;
+    margin-bottom: 0 !important;
+    border-radius: var(--radius-sm) !important;
+  }
+
+  .admin-sidebar > div:last-child {
+    display: none !important;
+  }
+
+  .admin-main {
+    padding: 18px 16px 80px 16px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  #mainContent {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-table {
+    min-width: 680px;
+  }
+
+  .admin-car-form-grid,
+  #carManageForm .grid-3,
+  #carManageForm [style*="grid-template-columns: 2fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .admin-car-form-grid > div:last-child,
+  #carManageForm [style*="position: sticky"] {
+    position: static !important;
+    top: auto !important;
   }
 }
+
+@media (max-width: 768px) {
+  /* Body bottom padding to account for fixed bottom navigation bar */
+  body {
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 20px) !important;
+  }
+
+  /* Section padding normalization on mobile devices */
+  section[style*="padding: 56px"],
+  section[style*="padding: 60px"],
+  section[style*="padding: 50px"],
+  section[style*="padding: 48px"],
+  section[style*="padding: 40px"],
+  section[style*="padding: 70px"] {
+    padding: 32px 0 40px !important;
+  }
+
+  .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Header mobile tuning */
+  .site-header {
+    padding: 8px 0;
+  }
+
+  .header-inner {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    font-size: 1.05rem;
+    gap: 8px;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+
+  .brand-logo .logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .brand-logo span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 175px;
+  }
+
+  .header-actions {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .header-actions .btn-whatsapp {
+    padding: 7px 10px;
+    min-height: 38px;
+  }
+
+  /* Typography scale on mobile */
+  h1 { font-size: clamp(1.5rem, 6vw, 1.85rem) !important; }
+  h2 { font-size: clamp(1.25rem, 5vw, 1.55rem) !important; }
+  h3 { font-size: clamp(1.1rem, 4vw, 1.3rem) !important; }
+  h4 { font-size: 1rem !important; }
+
+  /* Input fields - 16px to prevent iOS auto-zoom on focus, 44px min height touch target */
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="date"],
+  input[type="time"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  select,
+  textarea,
+  .form-control,
+  .form-input,
+  .form-select {
+    font-size: 16px !important;
+    min-height: 44px !important;
+    padding: 10px 14px !important;
+  }
+
+  /* Buttons on mobile */
+  .btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .btn-lg {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+
+  /* Cards & Glass Containers on Mobile */
+  .card,
+  .glass-card,
+  .card-elevated,
+  .policy-card {
+    padding: 18px 16px !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  /* Car Detail Page Mobile Fixes */
+  .car-detail-sticky-panel,
+  [style*="position: sticky"] {
+    position: static !important;
+    top: auto !important;
+  }
+
+  /* Review Section Scorecard Split Box */
+  div[style*="border-right: 1px solid rgba(255, 255, 255, 0.08)"],
+  div[style*="border-right:1px solid rgba(255, 255, 255, 0.08)"] {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding-right: 0 !important;
+    padding-bottom: 20px !important;
+  }
+
+  /* Reviews grid & form controls */
+  div[style*="minmax(340px, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  div[style*="minmax(280px, 1fr)"] {
+    grid-template-columns: 1fr !important;
+    padding: 18px 16px !important;
+    gap: 20px !important;
+  }
+
+  /* Admin Stat Cards 2x2 on Mobile instead of 1x4 */
+  .admin-stats-grid,
+  .grid-4:has(> .admin-stat-card) {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .admin-stat-card {
+    padding: 14px 12px !important;
+    gap: 4px !important;
+    min-width: 0 !important;
+  }
+
+  .admin-stat-value {
+    font-size: 1.45rem !important;
+  }
+
+  .admin-stat-label {
+    font-size: 0.7rem !important;
+  }
+
+  /* Table Horizontal Scroll Hint for Mobile */
+  .table-scroll-hint {
+    display: block !important;
+    font-size: 0.75rem !important;
+    color: var(--color-primary) !important;
+    background: rgba(0, 210, 255, 0.08) !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    padding: 8px 12px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  /* Voucher Layout on Mobile */
+  .voucher-card {
+    padding: 20px 16px !important;
+  }
+
+  /* Notice & Advisory Banners on Mobile */
+  .notice-banner {
+    padding: 12px 14px !important;
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-main header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    margin-bottom: 18px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .admin-header-actions {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Extra compact adjustments for smaller mobile screens */
+  .container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  /* Car Card Spec Grid */
+  .car-card-media {
+    height: 175px;
+  }
+
+  .car-card-body {
+    padding: 14px;
+  }
+
+  .car-title {
+    font-size: 1.05rem;
+  }
+
+  .car-price {
+    font-size: 1.2rem;
+  }
+
+  .car-specs {
+    gap: 4px;
+    padding: 8px 0;
+  }
+
+  .spec-item {
+    font-size: 0.67rem;
+    gap: 2px;
+  }
+
+  .spec-item svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .car-km-info {
+    font-size: 0.72rem;
+    margin-bottom: 12px;
+  }
+
+  /* Bottom nav items */
+  .bottom-nav-item {
+    font-size: 0.65rem;
+    padding: 3px 2px;
+  }
+
+  .bottom-nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Booking form vehicle summary card */
+  .booking-vehicle-summary {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .booking-vehicle-summary > div:first-child {
+    width: 100% !important;
+    height: 160px !important;
+  }
+
+  .booking-vehicle-summary > div:last-child {
+    text-align: left !important;
+    width: 100% !important;
+    border-top: 1px solid var(--color-border);
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  /* Stack button pairs that would overflow */
+  .home-support-actions,
+  .voucher-action-bar,
+  .lookup-actions,
+  .submitted-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .home-support-actions .btn,
+  .voucher-action-bar .btn,
+  .lookup-actions .btn,
+  .submitted-actions .btn {
+    width: 100% !important;
+  }
+}
+

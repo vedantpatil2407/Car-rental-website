@@ -3,56 +3,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>{% block title %}Admin Dashboard &bull; {{ BUSINESS_NAME }}{% endblock %}</title>
   <meta name="theme-color" content="#090D16">
-  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=2.5">
   {% block extra_css %}{% endblock %}
 </head>
 <body style="background-color: var(--color-bg);">
   <div class="admin-layout">
-    <!-- Admin Sidebar -->
+    <!-- Admin Sidebar / Mobile Header -->
     <aside class="admin-sidebar">
-      <div class="brand-logo" style="margin-bottom: 28px;">
-        <div class="logo-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
-            <circle cx="7" cy="17" r="2"></circle>
-            <path d="M9 17h6"></path>
-            <circle cx="17" cy="17" r="2"></circle>
-          </svg>
+      <div class="admin-sidebar-header">
+        <a href="{% url 'home' %}" class="brand-logo" title="{{ BUSINESS_NAME }}">
+          <div class="logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
+              <circle cx="7" cy="17" r="2"></circle>
+              <path d="M9 17h6"></path>
+              <circle cx="17" cy="17" r="2"></circle>
+            </svg>
+          </div>
+          <span>{{ BUSINESS_NAME }}</span>
+        </a>
+        <div class="admin-user-pill mobile-only">
+          <span class="status-dot"></span>
+          <span>{{ request.user.username }}</span>
         </div>
-        <span>{{ BUSINESS_NAME }}</span>
       </div>
 
-      <nav style="display: flex; flex-direction: column; gap: 4px; flex-grow: 1;">
+      <nav class="admin-nav-links">
         <a href="{% url 'admin_shell_preview' %}" class="admin-nav-item {% if request.resolver_match.url_name == 'admin_shell_preview' %}active{% endif %}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          <span>Bookings Dashboard</span>
+          <span>Bookings</span>
         </a>
         <a href="{% url 'admin_manage_cars' %}" class="admin-nav-item {% if request.resolver_match.url_name in 'admin_manage_cars admin_car_add admin_car_edit' %}active{% endif %}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
-          <span>Manage Cars</span>
+          <span>Cars</span>
         </a>
         <a href="/admin/rentals/car/" class="admin-nav-item" target="_blank">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-          <span>Django Admin Cars ↗</span>
+          <span>Django Admin ↗</span>
         </a>
         <a href="{% url 'rental_policy' %}" class="admin-nav-item">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          <span>Policy & Rules</span>
+          <span>Policy</span>
         </a>
         <a href="{% url 'home' %}" class="admin-nav-item" target="_blank">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-          <span>View Public Site ↗</span>
+          <span>Public Site ↗</span>
         </a>
-        <a href="{% url 'owner_logout' %}" class="admin-nav-item" style="color: #F87171; margin-top: 12px;">
+        <a href="{% url 'owner_logout' %}" class="admin-nav-item admin-logout-item">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
           <span>Log Out</span>
         </a>
       </nav>
 
-      <div style="border-top: 1px solid var(--color-border); padding-top: 16px;">
+      <div class="admin-user-footer desktop-only">
         <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 4px;">LOGGED IN AS</div>
         <div style="font-size: 0.85rem; font-weight: 600; color: #FFFFFF; margin-bottom: 6px;">{{ request.user.username }}</div>
         <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #10B981;">
@@ -69,7 +75,7 @@
           <h2>{% block page_title %}Owner Operations Control{% endblock %}</h2>
           <p style="color: var(--color-text-secondary); font-size: 0.85rem;">{{ BUSINESS_NAME }} Management Portal &bull; Logged in as <strong>{{ request.user.username }}</strong></p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 admin-header-actions" style="flex-wrap: wrap;">
           <a href="{% url 'home' %}" class="btn btn-secondary btn-sm">Public Website</a>
           <a href="{% url 'owner_logout' %}" class="btn btn-outline btn-sm" style="color: #F87171; border-color: rgba(248, 113, 113, 0.4);">Log Out</a>
         </div>
